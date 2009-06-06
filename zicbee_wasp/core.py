@@ -1,12 +1,12 @@
 from cmd import Cmd
+import ConfigParser
 import urllib2
 from functools import partial
-
-HOST='localhost:9090'
+from .config import config_read, config_write, config_list
 
 def webget(uri):
     if not '://' in uri:
-        uri = 'http://'+(uri.lstrip('/'))
+        uri = 'http://%s/%s'%(config_read('db_host'), uri.lstrip('/'))
     try:
         return urllib2.urlopen(uri).read()
     except IOError, e:
@@ -15,10 +15,28 @@ def webget(uri):
 def show_help(name):
     print commands[name][1]
 
+def set_variables(name=None, value=None):
+    try:
+        if name is None:
+            for varname, varval in config_list():
+                print "%s = %s"%(varname, varval)
+        elif value:
+            config_write(name, value)
+            print "%s = %s"%(name, config_read(name))
+        else:
+            print config_read(name)
+            print "%s = %s"%(name, config_read(name))
+    except ConfigParser.NoOptionError:
+        print "invalid option."
+
 def modify_show(start=None, answers=10):
     if start:
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
+        for line in webget('/infos').split('\n'):
+            if line.startswith('pls_position'):
+                start = line.split(':', 1)[1].strip()
+                return '/playlist?res=%s&start=%s'%(answers, start)
         return '/playlist?res=%s'%(answers)
 
 def execute(name=None, line=None):
@@ -36,6 +54,8 @@ def execute(name=None, line=None):
     pattern, doc = commands[name]
     if callable(pattern):
         pattern = pattern(*args)
+        if pattern is None:
+            return
 
     args = [urllib2.quote(a) for a in args]
 
@@ -43,7 +63,7 @@ def execute(name=None, line=None):
         expansion = tuple(args)
     else:
         expansion = dict(args = '%20'.join(args))
-    uri = HOST+(pattern%expansion)
+    uri = pattern%expansion
     print webget(uri)
 
 commands = dict(
@@ -56,6 +76,7 @@ commands = dict(
         albums=('/db/albums', 'Show list of albums'),
         genres=('/db/genres', 'Show list of genres'),
         kill=('/db/kill', 'Power down'),
+        set=(set_variables, 'List or set application variables'),
         stfu=('/close', 'Closes player'),
         # TODO: get, will download last search/play using db/get/song.mp3?id=<id>
         pause=('/pause', 'Toggles pause'),
@@ -88,6 +109,16 @@ class Shell(Cmd):
             setattr(self, 'help_%s'%cmd, partial(show_help, cmd))
         Cmd.__init__(self)
         self.names = [n for n in dir(self) if n.startswith('do_') and callable(getattr(self, n))]
+
+    def complete_set(self, cur_var, line, s, e):
+        params = line.split()
+        ret = None
+        if len(params) <= 2:
+            ret = (v for v, a in config_list() if v.startswith(cur_var))
+        elif len(params) > 2:
+            ret = set([v[1] for v in config_list()] + ['localhost'])
+
+        return [cur_var+h[e-s:] for h in ret if h.startswith(cur_var)]
 
     def get_names(self):
         return self.names
