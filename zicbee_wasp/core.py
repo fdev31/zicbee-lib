@@ -110,6 +110,16 @@ class Shell(Cmd):
         Cmd.__init__(self)
         self.names = [n for n in dir(self) if n.startswith('do_') and callable(getattr(self, n))]
 
+    def onecmd(self, line):
+        if len(line.split()) == 1 and line not in commands.keys():
+            possible_keys = [k for k in commands.keys() if k.startswith(line)]
+            if len(possible_keys) <= 1:
+                return Cmd.onecmd(self, possible_keys[0] if possible_keys else line)
+            else:
+                print "Ambiguity: %s"%(', '.join(possible_keys))
+                return
+        return Cmd.onecmd(self, line)
+
     def complete_set(self, cur_var, line, s, e):
         params = line.split()
         ret = None
