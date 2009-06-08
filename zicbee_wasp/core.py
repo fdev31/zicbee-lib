@@ -77,6 +77,7 @@ commands = dict(
         genres=('/db/genres', 'Show list of genres'),
         kill=('/db/kill', 'Power down'),
         set=(set_variables, 'List or set application variables'),
+        # complete_set=(lambda: [v[0] for v in config_list()], lambda: set(v[1] for v in config_list()))
         stfu=('/close', 'Closes player'),
         # TODO: get, will download last search/play using db/get/song.mp3?id=<id>
         pause=('/pause', 'Toggles pause'),
