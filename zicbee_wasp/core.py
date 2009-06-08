@@ -5,8 +5,12 @@ from functools import partial
 from .config import config_read, config_write, config_list
 
 def webget(uri):
+    if '/db/' in uri:
+        host = config_read('db_host')
+    else:
+        host = config_read('player_host')
     if not '://' in uri:
-        uri = 'http://%s/%s'%(config_read('db_host'), uri.lstrip('/'))
+        uri = 'http://%s/%s'%(host, uri.lstrip('/'))
     try:
         return urllib2.urlopen(uri).read()
     except IOError, e:
@@ -62,12 +66,12 @@ def execute(name=None, line=None):
     if '%s' in pattern:
         expansion = tuple(args)
     else:
-        expansion = dict(args = '%20'.join(args))
+        expansion = dict(args = '%20'.join(args), db_host=config_read('db_host'), player_host=config_read('player_host'))
     uri = pattern%expansion
     print webget(uri)
 
 commands = dict(
-        play=('/search?pattern=%(args)s', 'Play a song'),
+        play=('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
         search=('/db/search?fmt=txt&pattern=%(args)s', 'Query the database'),
         m3u=('/db/search?fmt=m3u&pattern=%(args)s', 'Query the database, request m3u format'),
         version=('/db/version', 'Show DB version'),
