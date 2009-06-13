@@ -1,8 +1,10 @@
-from cmd import Cmd
+import os
 import ConfigParser
 import urllib2
+import readline
+from cmd import Cmd
 from functools import partial
-from .config import config_read, config_write, config_list
+from .config import config_read, config_write, config_list, DB_DIR
 
 def webget(uri):
     if '/db/' in uri:
@@ -108,6 +110,11 @@ commands = dict(
 class Shell(Cmd):
     prompt = "Wasp> "
     def __init__(self):
+        self._history = os.path.join(DB_DIR, 'wasp_history.txt')
+        try:
+            readline.read_history_file(self._history)
+        except IOError:
+            'First time you launch Wasp! type "help" to get a list of commands.'
 
         for cmd, infos in commands.iteritems():
             setattr(self, 'do_%s'%cmd, partial(execute, cmd))
@@ -139,6 +146,8 @@ class Shell(Cmd):
         return self.names
 
     def do_EOF(self, line):
+        readline.set_history_length(int(config_read('history_size')))
+        readline.write_history_file(self._history)
         raise SystemExit()
 
     do_exit = do_quit = do_bye = do_EOF
