@@ -74,7 +74,20 @@ def execute(name=None, line=None):
     else:
         expansion = dict(args = '%20'.join(args), db_host=config_read('db_host'), player_host=config_read('player_host'))
     uri = pattern%expansion
-    print webget(uri)
+    r = webget(uri)
+    if r:
+        print r
+
+# commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
+# in request string, you can use two forms: positional or named
+# in positional form, you should have as many %s as required parameters, they will be passed in given order
+# in named form, you have dict expension for: args (a string containing all arguments separated by a space), db_host, player_host
+# if given an handler_function, this is executed to get the request string
+# 
+# In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
+# the request result is print on the console
+# TODO:
+# in extra parameters, allow definition of a display_function
 
 commands = dict(
         play=('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
