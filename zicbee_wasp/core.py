@@ -57,7 +57,11 @@ def execute(name=None, line=None):
             print "%s : %s"%(cmd, infos[1])
         return
 
-    pattern, doc = commands[name]
+    try:
+        pattern, doc = commands[name]
+    except ValueError:
+        pattern, doc, extras = commands[name]
+
     if callable(pattern):
         pattern = pattern(*args)
         if pattern is None:
