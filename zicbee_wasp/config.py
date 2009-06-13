@@ -13,6 +13,7 @@ defaults = dict(
         player_host = 'localhost:9090',
         default_port = '9090',
         download_dir = '/tmp',
+        history_size = '50',
         )
 config_filename = os.path.join(DB_DIR, 'config.ini')
 
