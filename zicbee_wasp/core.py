@@ -6,7 +6,7 @@ from cmd import Cmd
 from functools import partial
 from .config import config_read, config_write, config_list, DB_DIR
 
-def webget(uri):
+def iter_webget(uri):
     if '/db/' in uri:
         host = config_read('db_host')
     else:
@@ -14,9 +14,14 @@ def webget(uri):
     if not '://' in uri:
         uri = 'http://%s/%s'%(host, uri.lstrip('/'))
     try:
-        return urllib2.urlopen(uri).read()
+        return (l.rstrip() for l in urllib2.urlopen(uri))
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
+
+def webget(uri):
+    i = iter_webget(uri)
+    if i:
+        return '\n'.join(i)
 
 def show_help(name):
     print commands[name][1]
@@ -39,7 +44,7 @@ def modify_show(start=None, answers=10):
     if start:
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
-        for line in webget('/infos').split('\n'):
+        for line in iter_webget('/infos'):
             if line.startswith('pls_position'):
                 start = line.split(':', 1)[1].strip()
                 return '/playlist?res=%s&start=%s'%(answers, start)
@@ -73,10 +78,15 @@ def execute(name=None, line=None):
         expansion = tuple(args)
     else:
         expansion = dict(args = '%20'.join(args), db_host=config_read('db_host'), player_host=config_read('player_host'))
-    uri = pattern%expansion
-    r = webget(uri)
-    if r:
-        print r
+    try:
+        uri = pattern%expansion
+    except Exception, e:
+        print "Invalid arguments: %s"%e
+    else:
+        r = iter_webget(uri)
+        if r:
+            for line in r:
+                print line
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
