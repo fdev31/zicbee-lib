@@ -16,8 +16,8 @@ setup (
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
-        url = 'http://box.gnux.info/zicbee/',
-        download_url='http://box.gnux.info/hg/index.cgi/wasp/archive/wip.tar.bz2',
+        url = 'http://zicbee.gnux.info/',
+        download_url='http://zicbee.gnux.info/hg/index.cgi/wasp/archive/wip.tar.bz2',
         license='BSD',
         platform='all',
         description='Lightweight text client for zicbee',
@@ -39,7 +39,7 @@ Wasp is a thin text interface to access zicbee servers via http
             },
 
         dependency_links = [
-            'http://box.gnux.info/zicbee/files/',
+            'http://zicbee.gnux.info/files/',
             ],
         classifiers = [
                 'Development Status :: 4 - Beta',
