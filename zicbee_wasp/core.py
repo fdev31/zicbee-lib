@@ -64,6 +64,7 @@ def execute(name=None, line=None):
 
     try:
         pattern, doc = commands[name]
+        extras = None
     except ValueError:
         pattern, doc, extras = commands[name]
 
@@ -85,8 +86,11 @@ def execute(name=None, line=None):
     else:
         r = iter_webget(uri)
         if r:
-            for line in r:
-                print line
+            if extras and extras.get('display_modifier'):
+                extras['display_modifier'](r)
+            else:
+                for line in r:
+                    print line
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
