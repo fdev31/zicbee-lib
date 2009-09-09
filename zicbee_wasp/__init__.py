@@ -1,4 +1,5 @@
-__version__='0.1-alpha'
+__version__='0.2'
+
 def startup():
     import sys
     from .core import Shell, execute

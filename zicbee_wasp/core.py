@@ -7,7 +7,7 @@ from functools import partial
 from .config import config_read, config_write, config_list, DB_DIR
 
 def iter_webget(uri):
-    if '/db/' in uri:
+    if 'db' in uri.split('/', 4)[:-1]:
         host = config_read('db_host')
     else:
         host = config_read('player_host')
