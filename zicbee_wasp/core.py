@@ -6,6 +6,20 @@ from cmd import Cmd
 from functools import partial
 from .config import config_read, config_write, config_list, DB_DIR
 
+def _safe_webget_iter(uri):
+    site = urllib2.urlopen(uri)
+    while True:
+        try:
+            l = site.readline()
+        except Exception, e:
+            print "ERR:", e
+            break
+        else:
+            if l:
+                yield l.strip()
+            else:
+                break
+
 def iter_webget(uri):
     if 'db' in uri.split('/', 4)[:-1]:
         host = config_read('db_host')
@@ -14,7 +28,7 @@ def iter_webget(uri):
     if not '://' in uri:
         uri = 'http://%s/%s'%(host, uri.lstrip('/'))
     try:
-        return (l.rstrip() for l in urllib2.urlopen(uri))
+        return _safe_webget_iter(uri)
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
 
