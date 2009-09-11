@@ -64,6 +64,10 @@ def modify_show(start=None, answers=10):
                 return '/playlist?res=%s&start=%s'%(answers, start)
         return '/playlist?res=%s'%(answers)
 
+def tidy_show(it):
+    for line in it:
+        print ' | '.join(line.split(' | ')[1:4])
+
 def execute(name=None, line=None):
     if line is None:
         args = name.split()
@@ -78,6 +82,7 @@ def execute(name=None, line=None):
 
     try:
         pattern, doc = commands[name]
+        extras = None
     except ValueError:
         pattern, doc, extras = commands[name]
 
@@ -99,8 +104,11 @@ def execute(name=None, line=None):
     else:
         r = iter_webget(uri)
         if r:
-            for line in r:
-                print line
+            if extras and extras.get('display_modifier'):
+                extras['display_modifier'](r)
+            else:
+                for line in r:
+                    print line
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
@@ -139,7 +147,7 @@ commands = dict(
         volume=('/volume?val=%s', "Changes the volume"),
         playlist=('/playlist', "Dumps the playlist"),
 #        show=('/playlist?res=10&start=%s', "Dumps N elements around the active playlist song"),
-        show=(modify_show, "Dumps N elements around the active playlist song"),
+        show=(modify_show, "Dumps N elements around the active playlist song", dict(display_modifier=tidy_show)),
         guess=('/guess/%(args)s', "Tells if you are right (blind mode)"),
         shuffle=('/shuffle', "Shuffles the playlist"),
         tag=('/tag/%s', "Set a tag on current song"),
