@@ -1,6 +1,6 @@
 import os
 import ConfigParser
-import urllib2
+import urllib as urllib2 # WARNING: urllib2 makes IncompleteRead sometimes...
 import readline
 from cmd import Cmd
 from functools import partial
