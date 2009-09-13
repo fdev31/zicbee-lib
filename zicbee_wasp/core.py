@@ -68,7 +68,7 @@ def modify_show(start=None, answers=10):
 
 def tidy_show(it):
     for line in it:
-        print ' | '.join(line.split(' | ')[1:4])
+        print ' | '.join(line.split(' | ')[:4])
 
 def execute(name=None, line=None):
     if line is None:
