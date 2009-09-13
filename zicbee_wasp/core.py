@@ -7,11 +7,12 @@ from functools import partial
 from .config import config_read, config_write, config_list, DB_DIR
 
 def iter_webget(uri):
-    if 'db' in uri.split('/', 4)[:-1]:
-        host = config_read('db_host')
-    else:
-        host = config_read('player_host')
     if not '://' in uri:
+        if 'db' in uri.split('/', 4)[:-1]:
+            host = config_read('db_host')
+        else:
+            host = config_read('player_host')
+
         uri = 'http://%s/%s'%(host, uri.lstrip('/'))
     try:
         return (l.rstrip() for l in urllib2.urlopen(uri))
@@ -88,6 +89,8 @@ def execute(name=None, line=None):
     except Exception, e:
         print "Invalid arguments: %s"%e
     else:
+        if extras and extras.get('uri_hook'):
+            extras['uri_hook'](uri)
         r = iter_webget(uri)
         if r:
             if extras and extras.get('display_modifier'):
@@ -107,9 +110,32 @@ def execute(name=None, line=None):
 # TODO:
 # in extra parameters, allow definition of a display_function
 
+memory = {}
+
+def last_uri(u):
+    memory['last_search'] = u
+
+def get_last_search():
+    uri = memory.get('last_search')
+    if not uri:
+        print "No previous search, use shell to re-use previous result!"
+        return
+
+    to_download = []
+    for infos in iter_webget(memory['last_search']):
+        uri, artist, album, title = infos.split(' | ', 4)
+        ext = uri.rsplit('.', 1)[1].rsplit('?', 1)[0]
+        if not os.path.exists(artist):
+            os.mkdir(artist)
+        out_dir = os.path.join(artist, album)
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+        to_download.append((uri, os.path.join(out_dir, title) +"."+ext))
+    Downloader().run(to_download)
+
 commands = dict(
-        play=('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
-        search=('/db/search?fmt=txt&pattern=%(args)s', 'Query the database'),
+        play=('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song', dict(uri_hook=last_uri)),
+        search=('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=last_uri)),
         m3u=('/db/search?fmt=m3u&pattern=%(args)s', 'Query the database, request m3u format'),
         version=('/db/version', 'Show DB version'),
         db_tag=('/db/tag/%s/%s', 'Associates a tag to a song (params: Id, Tag)'),
@@ -117,6 +143,7 @@ commands = dict(
         albums=('/db/albums', 'Show list of albums'),
         genres=('/db/genres', 'Show list of genres'),
         kill=('/db/kill', 'Power down'),
+        get=(get_last_search, 'Download results of last search or play command'),
         set=(set_variables, 'List or set application variables'),
         # complete_set=(lambda: [v[0] for v in config_list()], lambda: set(v[1] for v in config_list()))
         stfu=('/close', 'Closes player'),
