@@ -5,6 +5,7 @@ import readline
 from cmd import Cmd
 from functools import partial
 from .config import config_read, config_write, config_list, DB_DIR
+from .downloader import Downloader
 
 def _safe_webget_iter(uri):
     site = urllib2.urlopen(uri)
