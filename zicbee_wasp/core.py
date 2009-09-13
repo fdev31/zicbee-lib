@@ -88,6 +88,8 @@ def execute(name=None, line=None):
     except Exception, e:
         print "Invalid arguments: %s"%e
     else:
+        if extras and extras.get('uri_hook'):
+            extras['uri_hook'](uri)
         r = iter_webget(uri)
         if r:
             if extras and extras.get('display_modifier'):
