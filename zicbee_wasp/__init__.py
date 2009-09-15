@@ -8,6 +8,12 @@ def startup():
     else:
         s = Shell()
         s._prompt = 'wasp'
-        s.cmdloop('Wasp %s!'%__version__)
+        user_happy = True
+        while user_happy:
+            try:
+                s.cmdloop('Wasp %s!'%__version__)
+            except KeyboardInterrupt:
+                if raw_input("Do you really want to exit (y/n) ? ").lower()[:1] == 'y':
+                    user_happy = False
 
 

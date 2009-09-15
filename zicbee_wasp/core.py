@@ -105,7 +105,12 @@ class Shell(Cmd):
             else:
                 print "Ambiguity: %s"%(', '.join(possible_keys))
                 return
-        return Cmd.onecmd(self, line)
+        try:
+            return Cmd.onecmd(self, line)
+        except Exception, e:
+            print "Err: %s"%e
+        except KeyboardInterrupt:
+            print "Interrupted!"
 
     def complete_set(self, cur_var, line, s, e):
         params = line.split()
