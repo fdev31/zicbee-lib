@@ -1,6 +1,6 @@
 import os
 from .downloader import Downloader
-from .utils import memory, iter_webget
+from .utils import iter_webget, memory
 
 def get_last_search():
     uri = memory.get('last_search')

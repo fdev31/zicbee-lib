@@ -1,6 +1,8 @@
 __all__ = [ 'last_uri', 'modify_move', 'modify_show', 'set_variables', 'tidy_show' ]
 
-from .utils import memory, get_infos
+import ConfigParser
+from .config import config_list, config_read, config_write
+from .utils import get_infos, memory
 
 def last_uri(u):
     memory['last_search'] = u
@@ -24,7 +26,6 @@ def modify_move(songid, where=None):
         infos = get_infos()
         where = int(infos['pls_position'])+1
     return '/move?s=%s&d=%s'%(songid, where)
-
 
 def modify_show(answers=10, start=None):
     if start:

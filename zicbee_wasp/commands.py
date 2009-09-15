@@ -1,11 +1,5 @@
-import ConfigParser
-from .config import config_list, config_read, config_write
-from .utils import iter_webget, memory, get_infos
-
 from .command_get import get_last_search
 from .command_misc import *
-
-# see end of file for commands dict
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
