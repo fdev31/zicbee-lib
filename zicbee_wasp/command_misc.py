@@ -1,8 +1,19 @@
-__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show' ]
+__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist' ]
 
 import ConfigParser
 from .config import config_list, config_read, config_write
 from .utils import get_infos, memory
+from urllib import quote
+
+def inject_playlist(symbol):
+    uri = memory.get('last_search')
+    if uri is None:
+        print "Do a search first !"
+        return
+    pattern = uri.split('pattern=', 1)[1]
+    substr = ("%s%%20pls%%3A%%20%s%%23"%(pattern, quote(symbol))).replace('%', '%%')
+    v = "/search?host=%(db_host)s&pattern="+substr
+    return v
 
 def set_variables(name=None, value=None):
     try:
