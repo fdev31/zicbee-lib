@@ -58,17 +58,24 @@ def set_variables(name=None, value=None):
 
 def modify_show(answers=10, start=None):
     if start:
+        memory['show_offset'] = int(start)
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
         for line in iter_webget('/infos'):
             if line.startswith('pls_position'):
                 start = line.split(':', 1)[1].strip()
+                memory['now_playing'] = memory['show_offset'] = int(start)
                 return '/playlist?res=%s&start=%s'%(answers, start)
+        memory['show_offset'] = 0
         return '/playlist?res=%s'%(answers)
 
 def tidy_show(it):
-    for line in it:
-        print ' | '.join(line.split(' | ')[:4])
+    offs = memory['show_offset']
+    now = memory.get('now_playing', None)
+
+    for i, line in enumerate(it):
+        idx = offs+i
+        print ('%3d '%idx if idx != now else ' >> ') + ' | '.join(line.split(' | ')[:4])
 
 def execute(name=None, line=None):
     if line is None:
@@ -119,13 +126,47 @@ def execute(name=None, line=None):
 # in positional form, you should have as many %s as required parameters, they will be passed in given order
 # in named form, you have dict expension for: args (a string containing all arguments separated by a space), db_host, player_host
 # if given an handler_function, this is executed to get the request string
-# 
+#
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
 # TODO:
 # in extra parameters, allow definition of a display_function
 
-memory = {}
+from time import time
+class _LostMemory(dict):
+    def __init__(self):
+        self.amnesiacs = ('now_playing',)
+        self._tss = dict()
+        dict.__init__(self)
+
+    def __getitem__(self, idx):
+        if self._is_recent(idx):
+            return dict.__getitem__(self, idx)
+
+    def _is_recent(self, idx):
+        if idx not in self.amnesiacs:
+            return True
+        DURATION=60
+        t = time()
+        return self._tss.get(idx, t) < t + DURATION
+
+    def __setitem__(self, itm, val):
+        self._tss[itm] = time()
+        dict.__setitem__(self, itm, val)
+
+    def __delitem__(self, slc):
+        del self._tss[slc]
+        dict.__delitem__(self, slc)
+
+    def get(self, idx, default=None):
+        if self._is_recent(idx):
+            return dict.get(self, idx)
+
+    def clear(self):
+        dict.clear(self)
+        self._tss.clear()
+
+memory = _LostMemory()
 
 def last_uri(u):
     memory['last_search'] = u
