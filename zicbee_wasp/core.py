@@ -87,6 +87,24 @@ def execute(name=None, line=None):
     if name == 'help':
         for cmd, infos in commands.iteritems():
             print "%s : %s"%(cmd, infos[1])
+        print """
+                 Syntax quick sheet
+    Tags:
+      * id (compact style) * genre * artist * album * title * track
+      * filename * score * tags * length
+
+    Playlists:
+        use "playlist" to read from, else "pls"
+        add "+" prefix to name to append instead of replacing
+        ">" prefix inserts just next
+        "#" = current playlist name
+
+    Numerics (length, track, score) needs spaces around modifiers if some is specified, examples:
+        length: >= 60*5
+        length: < 60*3+30
+        score: 5
+        """
+
         return
 
     try:
@@ -239,6 +257,16 @@ class Shell(Cmd):
             setattr(self, 'help_%s'%cmd, partial(show_help, cmd))
         Cmd.__init__(self)
         self.names = [n for n in dir(self) if n.startswith('do_') and callable(getattr(self, n))]
+
+    def do_help(self, line):
+        line = line.strip()
+        if line:
+            try:
+                getattr(self, 'help_%s'%line)()
+            except AttributeError:
+                print "Bzz Bzz"
+        else:
+            execute("help")
 
     def onecmd(self, line):
         if len(line.split()) == 1 and line not in commands.keys():
