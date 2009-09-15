@@ -104,7 +104,10 @@ class Shell(Cmd):
             if len(possible_keys) == 1:
                 line = possible_keys[0] + line[len(word):]
             elif not hasattr(self, 'do_%s'%word):
-                print "Ambiguity: %s"%(', '.join(possible_keys))
+                if possible_keys:
+                    print "Ambiguity: %s"%(', '.join(possible_keys))
+                else:
+                    print "Unkown command: %r, try 'help'."%word
                 return
         try:
             return Cmd.onecmd(self, line)
