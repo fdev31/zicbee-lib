@@ -1,11 +1,8 @@
-__all__ = [ 'last_uri', 'modify_move', 'modify_show', 'set_variables', 'tidy_show' ]
+__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show' ]
 
 import ConfigParser
 from .config import config_list, config_read, config_write
 from .utils import get_infos, memory
-
-def last_uri(u):
-    memory['last_search'] = u
 
 def set_variables(name=None, value=None):
     try:

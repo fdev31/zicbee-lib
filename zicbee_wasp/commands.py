@@ -1,3 +1,5 @@
+from functools import partial
+from .utils import memory
 from .command_get import get_last_search
 from .command_misc import *
 
@@ -14,7 +16,7 @@ from .command_misc import *
 
 commands = dict(
         play=('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
-        search=('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=last_uri)),
+        search=('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=partial(memory.__setitem__, 'last_search'))),
         m3u=('/db/search?fmt=m3u&pattern=%(args)s', 'Query the database, request m3u format'),
         version=('/db/version', 'Show DB version'),
         db_tag=('/db/tag/%s/%s', 'Associates a tag to a song (params: Id, Tag)'),
