@@ -98,11 +98,12 @@ class Shell(Cmd):
             execute("help")
 
     def onecmd(self, line):
-        if len(line.split()) == 1 and line not in commands.keys():
-            possible_keys = [k for k in commands.keys() if k.startswith(line)]
-            if len(possible_keys) <= 1:
-                return Cmd.onecmd(self, possible_keys[0] if possible_keys else line)
-            else:
+        word = line.split(None, 1)[0]
+        if word not in commands.keys():
+            possible_keys = [k for k in commands.keys() if k.startswith(word)]
+            if len(possible_keys) == 1:
+                line = possible_keys[0] + line[len(word):]
+            elif not hasattr(self, 'do_%s'%word):
                 print "Ambiguity: %s"%(', '.join(possible_keys))
                 return
         try:
