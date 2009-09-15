@@ -56,7 +56,7 @@ def set_variables(name=None, value=None):
     except ConfigParser.NoOptionError:
         print "invalid option."
 
-def modify_show(start=None, answers=10):
+def modify_show(answers=10, start=None):
     if start:
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
