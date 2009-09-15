@@ -10,8 +10,9 @@ def get_infos():
         line = line.strip()
         if line:
             k, v = line.split(':', 1)
-            d[k] = v.strip()
-
+            v = v.lstrip()
+            d[k] = v
+            memory[k] = v
     return d
 
 def _safe_webget_iter(uri):
@@ -43,8 +44,21 @@ def iter_webget(uri):
 
 
 class _LostMemory(dict):
+    amnesiacs = (
+        'album',
+        'song_position',
+        'title',
+        'artist',
+        'uri',
+        'pls_position',
+        'paused',
+        'length',
+        'score',
+        'id',
+        'pls_size',
+        'tags')
+
     def __init__(self):
-        self.amnesiacs = ('now_playing',)
         self._tss = dict()
         dict.__init__(self)
 
@@ -57,7 +71,8 @@ class _LostMemory(dict):
             return True
         DURATION=60
         t = time()
-        return self._tss.get(idx, t) < t + DURATION
+
+        return self._tss.get(idx, t-(2*DURATION))+DURATION > t
 
     def __setitem__(self, itm, val):
         self._tss[itm] = time()
@@ -68,8 +83,10 @@ class _LostMemory(dict):
         dict.__delitem__(self, slc)
 
     def get(self, idx, default=None):
-        if self._is_recent(idx):
-            return dict.get(self, idx)
+        """ Gets the data, if not recent enough refresh infos """
+        if not self._is_recent(idx):
+            get_infos()
+        return dict.get(self, idx, default)
 
     def clear(self):
         dict.clear(self)

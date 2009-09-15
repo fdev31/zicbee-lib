@@ -32,17 +32,17 @@ def modify_show(answers=10, start=None):
         memory['show_offset'] = int(start)
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
-        position = int(get_infos()['pls_position'])
+        position = int(memory.get('pls_position'))
         if position >= 0:
-            memory['now_playing'] = memory['show_offset'] = position
+            memory['show_offset'] = position
             return '/playlist?res=%s&start=%s'%(answers, position)
         else:
-            memory['now_playing'] = memory['show_offset'] = 0
+            memory['show_offset'] = 0
             return '/playlist?res=%s'%(answers)
 
 def tidy_show(it):
     offs = memory['show_offset']
-    now = memory.get('now_playing', None)
+    now = int(memory.get('pls_position'))
 
     for i, line in enumerate(it):
         idx = offs+i
