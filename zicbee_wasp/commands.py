@@ -31,8 +31,8 @@ commands = {
         # complete_set': (lambda: [v[0] for v in config_list()], lambda: set(v[1] for v in config_list()))
         'stfu': ('/close', 'Closes player'),
         'pause': ('/pause', 'Toggles pause'),
-        'next': ('/next', 'Zap current track'),
-        'prev': ('/prev', 'Go back to last song'),
+        'next': (hook_next, 'Zap current track'),
+        'prev': (hook_prev, 'Go back to last song'),
         'infos': ('/infos', 'Display player status'),
         'meta': ('/db/infos?id=%s', 'Display metadatas of a song giving his id'),
         'delete': ('/delete?idx=%s', "Remove player's song at given position"),
