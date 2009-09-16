@@ -1,9 +1,20 @@
-__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist' ]
+__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist' , 'hook_next', 'hook_prev']
 
 import ConfigParser
 from .config import config_list, config_read, config_write
 from .utils import get_infos, memory
 from urllib import quote
+
+def hook_next():
+    if 'pls_position' in memory:
+        del memory['pls_position']
+    return '/next'
+
+def hook_prev():
+    if 'pls_position' in memory:
+        del memory['pls_position']
+    return '/prev'
+
 
 def inject_playlist(symbol):
     uri = memory.get('last_search')
