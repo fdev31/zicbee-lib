@@ -45,7 +45,7 @@ def execute(name=None, line=None):
 
     if callable(pattern):
         pattern = pattern(*args)
-        if pattern is None:
+        if not pattern:
             return
 
     args = [urllib.quote(a) for a in args]

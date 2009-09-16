@@ -51,7 +51,12 @@ def modify_show(answers=10, start=None):
         memory['show_offset'] = int(start)
         return '/playlist?res=%s&start=%s'%(answers, start)
     else:
-        position = int(memory.get('pls_position'))
+        pos = memory.get('pls_position')
+        if pos is None:
+            return ''
+
+        position = int(pos)
+
         if position >= 0:
             memory['show_offset'] = position
             return '/playlist?res=%s&start=%s'%(answers, position)
