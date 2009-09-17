@@ -76,6 +76,7 @@ class Shell(Cmd):
     prompt = "Wasp> "
     def __init__(self):
         self._history = os.path.join(DB_DIR, 'wasp_history.txt')
+        self._last_line = None
         try:
             readline.read_history_file(self._history)
         except IOError:
@@ -98,7 +99,13 @@ class Shell(Cmd):
             execute("help")
 
     def onecmd(self, line):
-        word = line.split(None, 1)[0]
+        try:
+            word = line.split(None, 1)[0]
+        except IndexError: # empty string
+            if self._last_line:
+                return self.onecmd(self._last_line)
+            return
+
         if word not in commands.keys():
             possible_keys = [k for k in commands.keys() if k.startswith(word)]
             if len(possible_keys) == 1:
@@ -110,7 +117,9 @@ class Shell(Cmd):
                     print "Unkown command: %r, try 'help'."%word
                 return
         try:
-            return Cmd.onecmd(self, line)
+            r = Cmd.onecmd(self, line)
+            self._last_line = line
+            return r
         except Exception, e:
             print "Err: %s"%e
         except KeyboardInterrupt:
