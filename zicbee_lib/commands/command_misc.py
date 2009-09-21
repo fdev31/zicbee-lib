@@ -1,8 +1,8 @@
 __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist' , 'hook_next', 'hook_prev']
 
 import ConfigParser
-from .config import config_list, config_read, config_write
-from .utils import get_infos, memory
+from zicbee_lib.config import config
+from zicbee_lib.core import get_infos, memory
 from urllib import quote
 
 def hook_next():
@@ -29,14 +29,14 @@ def inject_playlist(symbol):
 def set_variables(name=None, value=None):
     try:
         if name is None:
-            for varname, varval in config_list():
+            for varname, varval in config:
                 print "%s = %s"%(varname, varval)
         elif value:
-            config_write(name, value)
-            print "%s = %s"%(name, config_read(name))
+            config[name] = value
+            print "%s = %s"%(name, config[name])
         else:
-            print config_read(name)
-            print "%s = %s"%(name, config_read(name))
+            print config[name]
+            print "%s = %s"%(name, config[name])
     except ConfigParser.NoOptionError:
         print "invalid option."
 

@@ -1,5 +1,5 @@
 from functools import partial
-from .utils import memory
+from zicbee_lib.core import memory
 from .command_get import get_last_search
 from .command_misc import *
 
@@ -28,7 +28,7 @@ commands = {
         'kill': ('/db/kill', 'Power down'),
         'get': (get_last_search, 'Download results of last search or play command'),
         'set': (set_variables, 'List or set application variables'),
-        # complete_set': (lambda: [v[0] for v in config_list()], lambda: set(v[1] for v in config_list()))
+        # complete_set': (lambda: [v[0] for v in config], lambda: set(v[1] for v in config))
         'stfu': ('/close', 'Closes player'),
         'pause': ('/pause', 'Toggles pause'),
         'next': (hook_next, 'Zap current track'),

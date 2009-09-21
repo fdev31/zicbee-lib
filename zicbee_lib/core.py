@@ -2,7 +2,7 @@ __all__ = ['memory', 'iter_webget', 'webget', 'get_infos']
 
 from time import time
 import urllib as urllib2 # WARNING: urllib2 makes IncompleteRead sometimes...
-from .config import config_read, config_write, config_list, DB_DIR
+from .config import config, DB_DIR
 
 def get_infos():
     d = {}
@@ -32,9 +32,9 @@ def _safe_webget_iter(uri):
 def iter_webget(uri):
     if not '://' in uri:
         if 'db' in uri.split('/', 4)[:-1]:
-            host = config_read('db_host')
+            host = config['db_host']
         else:
-            host = config_read('player_host')
+            host = config['player_host']
 
         uri = 'http://%s/%s'%(host, uri.lstrip('/'))
     try:

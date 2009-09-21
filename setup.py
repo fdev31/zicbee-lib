@@ -8,11 +8,11 @@ except ImportError:
 from setuptools import setup, find_packages
 
 sys.path.insert(0, '.')
-import zicbee_wasp
-VERSION=zicbee_wasp.__version__
+import zicbee_lib
+VERSION=zicbee_lib.__version__
 
 setup (
-        name='zicbee-wasp',
+        name='zicbee-lib',
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
@@ -30,12 +30,12 @@ Wasp is a thin text interface to access zicbee servers via http
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         entry_points = {
-            "console_scripts": [
-                'wasp = zicbee_wasp:startup',
-                ],
-            "setuptools.installation" : [
-                'eggsecutable = zicbee_wasp:startup'
-                ]
+#            "console_scripts": [
+#                'wasp = zicbee_lib:startup',
+#                ],
+#            "setuptools.installation" : [
+#                'eggsecutable = zicbee_wasp:startup'
+#                ]
             },
 
         dependency_links = [

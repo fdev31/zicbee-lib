@@ -1,6 +1,6 @@
 import os
-from .downloader import Downloader
-from .utils import iter_webget, memory
+from zicbee_lib.downloader import Downloader
+from zicbee_lib.core import iter_webget, memory
 
 def get_last_search():
     uri = memory.get('last_search')
