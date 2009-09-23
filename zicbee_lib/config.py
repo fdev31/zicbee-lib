@@ -51,7 +51,8 @@ class ConfigObj(object):
     __getitem__ = __getattr__
 
     def __iter__(self):
-        return self._cfg.iteritems()
+        for k in defaults_dict:
+            yield (k, self[k])
 
 # Ensure the file is written on drive
 #atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
