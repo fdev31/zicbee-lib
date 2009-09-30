@@ -6,7 +6,7 @@ from logging import getLogger
 from zicbee_lib.config import config
 
 log = getLogger('zicbee')
-def nop(): pass
+def nop(*args): pass
 
 try:
     debug_enabled = (str(config.debug).lower()[:1] not in 'fn') if config.debug else False
