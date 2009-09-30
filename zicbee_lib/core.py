@@ -69,7 +69,7 @@ class _LostMemory(dict):
     def _is_recent(self, idx):
         if idx not in self.amnesiacs:
             return True
-        DURATION=60
+        DURATION=1
         t = time()
 
         return self._tss.get(idx, t-(2*DURATION))+DURATION > t
