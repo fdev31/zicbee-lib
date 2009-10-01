@@ -22,6 +22,7 @@ def inject_playlist(symbol):
         print "Do a search first !"
         return
     pattern = uri.split('pattern=', 1)[1]
+    # crazy escaping
     substr = ("%s%%20pls%%3A%%20%s%%23"%(pattern, quote(symbol))).replace('%', '%%')
     v = "/search?host=%(db_host)s&pattern="+substr
     return v
