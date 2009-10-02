@@ -48,6 +48,7 @@ defaults_dict = {
         'enable_history': 'blank_to_disable',
         'players' : '',
         'loop': 'yes',
+        'autoshuffle': 'blank_to_disable',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
