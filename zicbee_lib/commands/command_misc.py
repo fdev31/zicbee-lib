@@ -1,5 +1,5 @@
 __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist',
-'hook_next', 'hook_prev', 'complete_set']
+'hook_next', 'hook_prev', 'complete_set', 'complete_alias', 'set_alias']
 
 import ConfigParser
 from zicbee_lib.config import config, aliases
@@ -40,6 +40,27 @@ def inject_playlist(symbol):
     v = "/search?host=%(db_host)s&pattern="+substr
     return v
 
+def set_alias(name=None, value=None):
+    try:
+        if name is None:
+            for varname, varval in aliases.iteritems():
+                print "%s = %s"%(varname, varval)
+        elif value:
+            aliases.add(name, value)
+            print "%s = %s"%(name, aliases[name])
+        else:
+            print "%s = %s"%(name, aliases[name])
+    except KeyError:
+        print "invalid option."
+
+def complete_alias(cur_var, params):
+    if len(params) <= 2 and cur_var:
+        # complete variables
+        ret = (k for k in aliases.iterkeys() if k.startswith(cur_var))
+    elif len(params) >= 2:
+        ret = (v for v in aliases.itervalues() if v.startswith(cur_var))
+    return ret
+
 def set_variables(name=None, value=None):
     try:
         if name is None:
@@ -49,7 +70,6 @@ def set_variables(name=None, value=None):
             config[name] = value
             print "%s = %s"%(name, config[name])
         else:
-            print config[name]
             print "%s = %s"%(name, config[name])
     except ConfigParser.NoOptionError:
         print "invalid option."

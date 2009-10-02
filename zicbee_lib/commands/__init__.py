@@ -28,6 +28,7 @@ commands = {
         'kill': ('/db/kill', 'Power down'),
         'get': (get_last_search, 'Download results of last search or play command'),
         'set': (set_variables, 'List or set application variables', dict(complete=complete_set)),
+        'alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
         # complete_set': (lambda: [v[0] for v in config], lambda: set(v[1] for v in config))
         'stfu': ('/close', 'Closes player'),
         'pause': ('/pause', 'Toggles pause'),
