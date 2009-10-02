@@ -2,9 +2,32 @@ import os
 import atexit
 import ConfigParser
 
-__all__ = ['DB_DIR', 'defaults_dict', 'config']
+__all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
+
+class _Aliases(dict):
+    def __init__(self):
+        dict.__init__(self)
+        self._db_dir = os.path.join(DB_DIR, 'aliases.txt')
+        try:
+            self._read()
+        except IOError:
+            self._write()
+
+    def add(self, name, address):
+        self[name] = address
+        self._write()
+
+    def _read(self):
+        self.update(dict((s.strip() for s in l.split(None, 1)) for l in file(self._db_dir)))
+
+    def _write(self):
+        f = file(self._db_dir, 'w')
+        for k, v in self.iteritems():
+            f.writeline('%s %s\n'%(k,v))
+        f.close()
+
 try: # Ensure personal dir exists
     os.mkdir(DB_DIR)
 except:
@@ -29,7 +52,7 @@ defaults_dict = {
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
 
-class ConfigObj(object):
+class _ConfigObj(object):
 
     _cfg = ConfigParser.ConfigParser(defaults_dict)
 
@@ -40,8 +63,15 @@ class ConfigObj(object):
             self._cfg.write(file(config_filename, 'w'))
 
     def __setattr__(self, name, val):
-        if name.endswith('_host') and ':' not in val:
-            val = '%s:%s'%( val, self.default_port )
+
+        if name.endswith('_host'):
+
+            if val in aliases:
+                val = aliases[val]
+
+            if ':' not in val:
+                val = '%s:%s'%( val, self.default_port )
+
         val = self._cfg.set('DEFAULT', name, val)
         config._cfg.write(file(config_filename, 'w'))
         return val
@@ -59,7 +89,8 @@ class ConfigObj(object):
 # Ensure the file is written on drive
 #atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 
-config = ConfigObj()
+config = _ConfigObj()
+aliases = _Aliases()
 
 class DefaultDict(dict):
     def __init__(self, default, *a):
