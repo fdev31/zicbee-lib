@@ -25,7 +25,7 @@ class _Aliases(dict):
     def _write(self):
         f = file(self._db_dir, 'w')
         for k, v in self.iteritems():
-            f.writeline('%s %s\n'%(k,v))
+            f.write('%s %s\n'%(k,v))
         f.close()
 
 try: # Ensure personal dir exists
