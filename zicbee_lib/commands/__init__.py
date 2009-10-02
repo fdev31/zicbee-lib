@@ -1,7 +1,8 @@
 from functools import partial
 from zicbee_lib.core import memory
 from .command_get import get_last_search
-from .command_misc import *
+from .command_misc import hook_next, hook_prev, inject_playlist, modify_move
+from .command_misc import modify_show, set_variables, tidy_show
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
