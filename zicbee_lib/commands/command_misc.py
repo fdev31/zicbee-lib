@@ -1,9 +1,22 @@
-__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist' , 'hook_next', 'hook_prev']
+__all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist',
+'hook_next', 'hook_prev', 'complete_set']
 
 import ConfigParser
-from zicbee_lib.config import config
+from zicbee_lib.config import config, aliases
 from zicbee_lib.core import get_infos, memory
 from urllib import quote
+
+def complete_set(cur_var, params):
+    if len(params) <= 2 and cur_var:
+        # complete variables
+        ret = (k for k, a in config if k.startswith(cur_var))
+    elif len(params) >= 2:
+        data = dict(config)
+        # complete values
+        if '_host' in params[1]:
+            data.update(('___'+v, v) for v in aliases)
+        ret = set([v for v in data.itervalues()] + ['localhost'])
+    return ret
 
 def hook_next():
     if 'pls_position' in memory:
