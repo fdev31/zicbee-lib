@@ -1,5 +1,6 @@
+from urllib import quote
 from functools import partial
-from zicbee_lib.core import memory
+from zicbee_lib.core import memory, config, iter_webget
 from .command_get import get_last_search
 from .command_misc import complete_alias, complete_set, hook_next, hook_prev
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias
@@ -56,3 +57,97 @@ commands = {
         'clear': ('/clear', "Flushes the playlist"),
 #       ' seek': ('/seek/%s', "Seeks on current song"),
         }
+
+# execution code
+
+possible_commands = commands.keys()
+possible_commands.append('help')
+
+def execute(name=None, line=None):
+    if line is None:
+        args = name.split()
+        name = args.pop(0)
+    else:
+        args = line.split()
+
+    if name not in possible_commands:
+        # abbreviations support
+        possible_keys = [k for k in possible_commands if k.startswith(name)]
+        if len(possible_keys) == 1:
+            name = possible_keys[0]
+        elif not possible_keys:
+            if name in ('EOF', 'exit', 'bye'):
+                raise SystemExit
+            print 'Unknwown command: "%s"'%name
+            return
+        elif name not in possible_keys:
+            print "Ambiguous: %s"%(', '.join(possible_keys))
+            return
+
+    if name == 'help':
+        if args:
+            try:
+                print commands[args[0]][1]
+            except KeyError:
+                if args[0] not in commands:
+                    print '"%s" is not recognised.'%args[0]
+                else:
+                    print "No help for that command."
+            finally:
+                return
+
+        for cmd, infos in commands.iteritems():
+            print "%s : %s"%(cmd, infos[1])
+        print """
+                 Syntax quick sheet
+    Tags:
+      * id (compact style) * genre * artist * album * title * track
+      * filename * score * tags * length
+
+    Playlists (only with play command):
+        use "pls: <name>" to store the request as "<name>"
+        add ">" prefix to name to append instead of replacing
+        "+" prefix inserts just next
+        "#" = special name to point "current" playlist
+
+    Numerics (length, track, score) have rich operators, default is "==" for equality
+        length: >= 60*5
+        length: < 60*3+30
+        length: >100
+        score: 5
+        """
+
+        return
+
+    try:
+        pattern, doc = commands[name]
+        extras = None
+    except ValueError:
+        pattern, doc, extras = commands[name]
+
+    if callable(pattern):
+        pattern = pattern(*args)
+        if not pattern:
+            return
+
+    args = [quote(a) for a in args]
+
+    if '%s' in pattern:
+        expansion = tuple(args)
+    else:
+        expansion = dict(args = '%20'.join(args), db_host=config['db_host'], player_host=config['player_host'])
+    try:
+        uri = pattern%expansion
+    except Exception, e:
+        print "Invalid arguments: %s"%e
+    else:
+        if extras and extras.get('uri_hook'):
+            extras['uri_hook'](uri)
+        r = iter_webget(uri)
+        if r:
+            if extras and extras.get('display_modifier'):
+                extras['display_modifier'](r)
+            else:
+                for line in r:
+                    print line
+
