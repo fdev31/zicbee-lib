@@ -1,5 +1,5 @@
 __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist',
-'hook_next', 'hook_prev', 'complete_set', 'complete_alias', 'set_alias']
+'hook_next', 'hook_prev', 'complete_set', 'complete_alias', 'set_alias', 'set_grep_pattern', 'apply_grep_pattern']
 
 import ConfigParser
 from zicbee_lib.config import config, aliases
@@ -28,6 +28,16 @@ def hook_prev():
         del memory['pls_position']
     return '/prev'
 
+def set_grep_pattern(pat):
+    memory['grep'] = pat
+    return '/playlist'
+
+
+def apply_grep_pattern(it):
+    pat = memory['grep'].lower()
+    for i, line in enumerate(it):
+        if pat in line.lower():
+            print "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
 
 def inject_playlist(symbol):
     uri = memory.get('last_search')

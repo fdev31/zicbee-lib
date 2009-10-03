@@ -4,7 +4,7 @@ from zicbee_lib.core import memory, config, iter_webget
 from .command_get import get_last_search
 from .command_misc import complete_alias, complete_set, hook_next, hook_prev
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias
-from .command_misc import set_variables, tidy_show
+from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
@@ -48,6 +48,7 @@ commands = {
         'save': ('/save?name=%s', "Saves the current playlist to given name"),
         'volume': ('/volume?val=%s', "Changes the volume"),
         'playlist': ('/playlist', "Shows the entire playlist (Might be SLOW!)"),
+        'grep': (set_grep_pattern, "Grep (search for a pattern) in the playlist", dict(display_modifier=apply_grep_pattern)),
         'playlists': ('/playlists', "Shows all your saved playlists"),
         'show': (modify_show, "Shows N elements after the current song,\n\tyou can optionally gives an alternative offset.", dict(display_modifier=tidy_show)),
         'guess': ('/guess/%(args)s', "Tells if you are right (blind mode)"),
