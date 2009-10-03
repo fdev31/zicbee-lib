@@ -72,6 +72,8 @@ class _ConfigObj(object):
 
             if ':' not in val:
                 val = '%s:%s'%( val, self.default_port )
+        elif val.lower() in ('off', 'no'):
+            val = ''
 
         val = self._cfg.set('DEFAULT', name, val)
         config._cfg.write(file(config_filename, 'w'))
