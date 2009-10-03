@@ -5,6 +5,7 @@ import ConfigParser
 __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
+VALID_EXTENSIONS = ('mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac')
 
 class _Aliases(dict):
     def __init__(self):
@@ -95,10 +96,21 @@ class _ConfigObj(object):
 config = _ConfigObj()
 aliases = _Aliases()
 
-class DefaultDict(dict):
-    def __init__(self, default, *a):
-        dict.__init__(self, *a)
+class _DefaultDict(dict):
+    def __init__(self, default, a, valid_keys=None):
+        dict.__init__(self, a)
         self._default = default
+        if valid_keys:
+            self.valid_keys = valid_keys
+        else:
+            self.valid_keys = None
+
+    def keys(self):
+        k = dict.keys(self)
+        if self.valid_keys:
+            k = set(k)
+            k.update(self.valid_keys)
+        return k
 
     def __getitem__(self, val):
         try:
@@ -106,9 +118,8 @@ class DefaultDict(dict):
         except KeyError:
             return self._default
 
-media_config = DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        {
-            'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
-            }
-        )
+media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        {'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
+            },
+        valid_keys = VALID_EXTENSIONS)
 
