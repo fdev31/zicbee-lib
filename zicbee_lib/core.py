@@ -1,7 +1,11 @@
 __all__ = ['memory', 'iter_webget', 'webget', 'get_infos']
 
 from time import time
-import urllib as urllib2 # WARNING: urllib2 makes IncompleteRead sometimes...
+try:
+    import urllib as urllib2
+except ImportError: # Compatibility with python3
+    import urllib2 # WARNING: urllib2 makes IncompleteRead sometimes... observed with python2.x
+
 from .config import config, DB_DIR
 
 def get_infos():

@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-import urllib
+from zicbee_lib.core import urllib2
 from itertools import chain
 from weakref import WeakKeyDictionary
 try:
@@ -16,7 +16,7 @@ def DownloadGenerator(uri):
     if os.path.exists(filename):
         return
 
-    site = urllib.urlopen(uri)
+    site = urllib2.urlopen(uri)
     out_file = file(filename, 'w')
     BUF_SZ = 2**16
     try:
