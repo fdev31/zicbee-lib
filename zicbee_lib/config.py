@@ -5,7 +5,7 @@ import ConfigParser
 __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
-VALID_EXTENSIONS = ('mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac')
+VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac']
 
 class _Aliases(dict):
     def __init__(self):
@@ -47,6 +47,7 @@ defaults_dict = {
         'fork': 'blank_me_to_stop_forking_on_serve_mode',
         'socket_timeout': '30',
         'enable_history': 'blank_to_disable',
+        'custom_extensions': 'mpg,mp2',
         'players' : '',
         'loop': 'yes',
         'autoshuffle': 'blank_to_disable',
@@ -117,6 +118,8 @@ class _DefaultDict(dict):
             return dict.__getitem__(self, val)
         except KeyError:
             return self._default
+
+VALID_EXTENSIONS.extend(c.strip() for c in config.custom_extensions.split(','))
 
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
         {'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
