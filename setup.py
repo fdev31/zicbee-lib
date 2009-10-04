@@ -17,7 +17,7 @@ setup (
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
         url = 'http://zicbee.gnux.info/',
-        download_url='http://zicbee.gnux.info/hg/index.cgi/wasp/archive/wip.tar.bz2',
+        download_url='http://zicbee.gnux.info/hg/index.cgi/wasp/archive/%s.tar.bz2'%VERSION,
         license='BSD',
         platform='all',
         description='Lightweight text client for zicbee',
