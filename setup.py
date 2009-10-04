@@ -17,15 +17,15 @@ setup (
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
         url = 'http://zicbee.gnux.info/',
-        download_url='http://zicbee.gnux.info/hg/index.cgi/wasp/archive/%s.tar.bz2'%VERSION,
+        download_url='http://zicbee.gnux.info/hg/index.cgi/zicbee-lib/archive/%s.tar.bz2'%VERSION,
         license='BSD',
         platform='all',
-        description='Lightweight text client for zicbee',
+        description='Base client libraries for zicbee project',
         long_description='''
 ZicBee is a project grouping multiple applications to manage play and handle music databases.
 It takes ideas from Quodlibet and Mpd, both very good music mplayers with their own strengths.
 
-Wasp is a thin text interface to access zicbee servers via http
+This package allow any python developper to build his own client
         ''',
         keywords = 'database music tags metadata management',
         packages = find_packages(),
