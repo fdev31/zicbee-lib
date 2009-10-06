@@ -4,6 +4,7 @@ __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_
 import ConfigParser
 from zicbee_lib.config import config, aliases
 from zicbee_lib.core import get_infos, memory
+from zicbee_lib.formats import get_index_or_slice
 from urllib import quote
 
 def complete_set(cur_var, params):
@@ -102,11 +103,12 @@ def modify_move(songid, where=None):
     else:
         return '/move?s=%s&d=%s'%(songid, where)
 
-def modify_show(answers=10, start=None):
-    # TODO: use slices ?!
-    if start:
-        memory['show_offset'] = int(start)
-        return '/playlist?res=%s&start=%s'%(answers, start)
+def modify_show(answers=10):
+    answers = get_index_or_slice(answers)
+    if isinstance(answers, slice):
+        memory['show_offset'] = answers.start
+        results = answers.stop if answers.stop < 0 else answers.stop - answers.start
+        return '/playlist?res=%s&start=%s'%(results, answers.start)
     else:
         pos = memory.get('pls_position')
         if pos is None:

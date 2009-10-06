@@ -51,7 +51,7 @@ commands = {
         'playlist': ('/playlist', "Shows the entire playlist (Might be SLOW!)"),
         'grep': (set_grep_pattern, "Grep (search for a pattern) in the playlist", dict(display_modifier=apply_grep_pattern)),
         'playlists': ('/playlists', "Shows all your saved playlists"),
-        'show': (modify_show, "Shows N elements after the current song,\n\tyou can optionally gives an alternative offset.", dict(display_modifier=tidy_show)),
+        'show': (modify_show, "Shows N elements after the current song,\n\tif you set a slice (ex.: show 3:10) then it shows the selected range.", dict(display_modifier=tidy_show)),
         'guess': ('/guess/%(args)s', "Tells if you are right (blind mode)"),
         'shuffle': ('/shuffle', "Shuffles the playlist"),
         'tag': ('/tag/%s', "Set a tag on current song"),
