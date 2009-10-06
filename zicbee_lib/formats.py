@@ -1,4 +1,4 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'DEBUG']
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'DEBUG', 'get_index_or_slice']
 
 import inspect
 import itertools
@@ -42,6 +42,19 @@ def uncompact_int(str_val):
         unit *= base
     log.info('uncompact(%s) = %s', str_val, result)
     return result
+
+def get_index_or_slice(val):
+    """ Convertgs a string to either an integer or a slice or raises a ValueError """
+    try:
+        i = int(val)
+    except ValueError:
+        if ':' in val:
+            vals = [int(x) for x in val.split(':')]
+            vals[1]+=1
+            i = slice(*vals)
+        else:
+            raise
+    return i
 
 ################################################################################
 
