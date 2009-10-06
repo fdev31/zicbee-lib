@@ -7,6 +7,7 @@
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
 
+import thread
 from urllib import quote
 from functools import partial
 from types import GeneratorType
@@ -18,7 +19,7 @@ from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep
 
 commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
-        'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
+        'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song', dict(threaded=True)),
         'search': ('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=partial(memory.__setitem__, 'last_search'))),
         'as': (partial(inject_playlist, '>'), 'Appends last search to current playlist'),
         'is': (partial(inject_playlist, '+'), 'Inserts last search to current playlist (after the current song)'),
@@ -150,9 +151,15 @@ def execute(name=None, line=None):
                 extras['uri_hook'](uri)
             r = iter_webget(uri)
             if r:
-                if extras and extras.get('display_modifier'):
-                    extras['display_modifier'](r)
+                def _finish(out=None):
+                    if extras and extras.get('display_modifier'):
+                        extras['display_modifier'](r)
+                    else:
+                        for line in r:
+                            if out:
+                                print line
+                if extras and extras.get('threaded', False):
+                    thread.start_new(_finish, ())
                 else:
-                    for line in r:
-                        print line
+                    _finish(True)
 
