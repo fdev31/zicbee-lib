@@ -18,6 +18,7 @@ from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep
 # in extra parameters, allow definition of a display_function
 
 commands = {
+#        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
         'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song'),
         'search': ('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=partial(memory.__setitem__, 'last_search'))),
         'as': (partial(inject_playlist, '>'), 'Appends last search to current playlist'),
@@ -121,34 +122,38 @@ def execute(name=None, line=None):
         return
 
     try:
-        pattern, doc = commands[name]
+        pat, doc = commands[name]
         extras = None
     except ValueError:
-        pattern, doc, extras = commands[name]
+        pat, doc, extras = commands[name]
 
-    if callable(pattern):
-        pattern = pattern(*args)
-        if not pattern:
+    if callable(pat):
+        pat = pat(*args)
+        if not pat:
             return
 
     args = [quote(a) for a in args]
 
-    if '%s' in pattern:
-        expansion = tuple(args)
-    else:
-        expansion = dict(args = '%20'.join(args), db_host=config['db_host'], player_host=config['player_host'])
-    try:
-        uri = pattern%expansion
-    except Exception, e:
-        print "Invalid arguments: %s"%e
-    else:
-        if extras and extras.get('uri_hook'):
-            extras['uri_hook'](uri)
-        r = iter_webget(uri)
-        if r:
-            if extras and extras.get('display_modifier'):
-                extras['display_modifier'](r)
-            else:
-                for line in r:
-                    print line
+    if not isinstance(pat, (list, tuple, GeneratorType)):
+        pat = [pat]
+
+    for pattern in pat:
+        if '%s' in pattern:
+            expansion = tuple(args)
+        else:
+            expansion = dict(args = '%20'.join(args), db_host=config['db_host'], player_host=config['player_host'])
+        try:
+            uri = pattern%expansion
+        except Exception, e:
+            print "Invalid arguments: %s"%e
+        else:
+            if extras and extras.get('uri_hook'):
+                extras['uri_hook'](uri)
+            r = iter_webget(uri)
+            if r:
+                if extras and extras.get('display_modifier'):
+                    extras['display_modifier'](r)
+                else:
+                    for line in r:
+                        print line
 
