@@ -103,6 +103,7 @@ def modify_move(songid, where=None):
         return '/move?s=%s&d=%s'%(songid, where)
 
 def modify_show(answers=10, start=None):
+    # TODO: use slices ?!
     if start:
         memory['show_offset'] = int(start)
         return '/playlist?res=%s&start=%s'%(answers, start)
