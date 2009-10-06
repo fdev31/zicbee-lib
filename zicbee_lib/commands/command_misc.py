@@ -99,7 +99,10 @@ def modify_show(answers=10, start=None):
         if pos is None:
             return ''
 
-        position = int(pos)
+        try:
+            position = int(pos)
+        except TypeError:
+            position = -1
 
         if position >= 0:
             memory['show_offset'] = position
