@@ -49,8 +49,11 @@ def get_index_or_slice(val):
         i = int(val)
     except ValueError:
         if ':' in val:
-            vals = [int(x) for x in val.split(':')]
-            vals[1]+=1
+            vals = [int(x) if x else 0 for x in val.split(':')]
+            if vals[1] == 0:
+                vals[1] = None
+            else:
+                vals[1] += 1
             i = slice(*vals)
         else:
             raise
