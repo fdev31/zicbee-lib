@@ -1,11 +1,3 @@
-from urllib import quote
-from functools import partial
-from zicbee_lib.core import memory, config, iter_webget
-from .command_get import get_last_search
-from .command_misc import complete_alias, complete_set, hook_next, hook_prev
-from .command_misc import inject_playlist, modify_move, modify_show, set_alias
-from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
-
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
 # in positional form, you should have as many %s as required parameters, they will be passed in given order
@@ -14,8 +6,15 @@ from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep
 #
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
-# TODO:
-# in extra parameters, allow definition of a display_function
+
+from urllib import quote
+from functools import partial
+from types import GeneratorType
+from zicbee_lib.core import memory, config, iter_webget
+from .command_get import get_last_search
+from .command_misc import complete_alias, complete_set, hook_next, hook_prev
+from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
+from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
 commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
@@ -40,7 +39,7 @@ commands = {
         'prev': (hook_prev, 'Go back to last song'),
         'infos': ('/infos', 'Display player status'),
         'meta': ('/db/infos?id=%s', 'Display metadatas of a song giving his id'),
-        'delete': ('/delete?idx=%s', "Remove player's song at given position, if not given a position, removes a named playlist"),
+        'delete': (modify_delete, "Remove player's song at given position, if not given a position, removes a named playlist"),
         'move': (modify_move, "Move a song from a position to another\n\t(if none given, adds just next current song)"),
         'swap': ('/swap?i1=%s&i2=%s', "Swap two songs"),
         'append': ('/append?name=%s', "Append a named playlist to the current playlist"),

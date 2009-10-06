@@ -32,12 +32,14 @@ def set_grep_pattern(pat):
     memory['grep'] = pat
     return '/playlist'
 
-
 def apply_grep_pattern(it):
     pat = memory['grep'].lower()
+    grep_idx = []
     for i, line in enumerate(it):
         if pat in line.lower():
+            grep_idx.append(i)
             print "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
+    memory['grepped'] = grep_idx
 
 def inject_playlist(symbol):
     uri = memory.get('last_search')
@@ -84,11 +86,21 @@ def set_variables(name=None, value=None):
     except ConfigParser.NoOptionError:
         print "invalid option."
 
+def modify_delete(songid):
+    if songid == 'grep':
+        return ('/delete?idx=%s'%i for i in memory['grepped'])
+    else:
+        return '/delete?idx=%s'%songid
+
 def modify_move(songid, where=None):
+
     if where is None:
         infos = get_infos()
         where = int(infos['pls_position'])+1
-    return '/move?s=%s&d=%s'%(songid, where)
+    if songid == 'grep':
+        return ('/move?s=%s&d=%s'%(i, where) for i in memory['grepped'])
+    else:
+        return '/move?s=%s&d=%s'%(songid, where)
 
 def modify_show(answers=10, start=None):
     if start:
@@ -113,7 +125,7 @@ def modify_show(answers=10, start=None):
 
 def tidy_show(it):
     offs = memory['show_offset']
-    now = int(memory.get('pls_position'))
+    now = int(memory.get('pls_position', -1))
 
     for i, line in enumerate(it):
         idx = offs+i
