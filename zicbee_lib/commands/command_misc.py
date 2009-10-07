@@ -109,7 +109,7 @@ def modify_show(output, answers=10):
     answers = get_index_or_slice(answers)
     if isinstance(answers, slice):
         memory['show_offset'] = answers.start
-        results = answers.stop if answers.stop < 0 else answers.stop - answers.start
+        results = 0 if answers.stop <= 0 else answers.stop - answers.start
         return '/playlist?res=%s&start=%s'%(results, answers.start)
     else:
         pos = memory.get('pls_position')
