@@ -49,6 +49,7 @@ defaults_dict = {
         'enable_history': 'blank_to_disable',
         'custom_extensions': 'mpg,mp2',
         'players' : '',
+        'notify' : 'yes',
         'loop': 'yes',
         'autoshuffle': 'blank_to_disable',
         }
