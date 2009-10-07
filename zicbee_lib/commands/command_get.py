@@ -2,7 +2,7 @@ import os
 from zicbee_lib.downloader import Downloader
 from zicbee_lib.core import iter_webget, memory
 
-def get_last_search():
+def get_last_search(output):
     uri = memory.get('last_search')
     if not uri:
         print "No previous search, use shell to re-use previous result!"
@@ -19,4 +19,5 @@ def get_last_search():
             os.mkdir(out_dir)
         to_download.append((uri, os.path.join(out_dir, title) +"."+ext))
     Downloader().run(to_download)
+    output((e[1] for e in to_download))
 
