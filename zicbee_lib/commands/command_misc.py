@@ -19,30 +19,32 @@ def complete_set(cur_var, params):
         ret = set([v for v in data.itervalues()] + ['localhost'])
     return ret
 
-def hook_next():
+def hook_next(output):
     if 'pls_position' in memory:
         del memory['pls_position']
     return '/next'
 
-def hook_prev():
+def hook_prev(output):
     if 'pls_position' in memory:
         del memory['pls_position']
     return '/prev'
 
-def set_grep_pattern(pat):
+def set_grep_pattern(output, pat):
     memory['grep'] = pat
     return '/playlist'
 
 def apply_grep_pattern(it):
+    # TODO: optimize
     pat = memory['grep'].lower()
     grep_idx = []
     for i, line in enumerate(it):
         if pat in line.lower():
             grep_idx.append(i)
-            print "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
+            yield "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
+
     memory['grepped'] = grep_idx
 
-def inject_playlist(symbol):
+def inject_playlist(output, symbol):
     uri = memory.get('last_search')
     if uri is None:
         print "Do a search first !"
@@ -53,16 +55,16 @@ def inject_playlist(symbol):
     v = "/search?host=%(db_host)s&pattern="+substr
     return v
 
-def set_alias(name=None, value=None):
+def set_alias(output, name=None, value=None):
     try:
         if name is None:
             for varname, varval in aliases.iteritems():
-                print "%s = %s"%(varname, varval)
+                yield "%s = %s"%(varname, varval)
         elif value:
             aliases.add(name, value)
-            print "%s = %s"%(name, aliases[name])
+            yield "%s = %s"%(name, aliases[name])
         else:
-            print "%s = %s"%(name, aliases[name])
+            yield "%s = %s"%(name, aliases[name])
     except KeyError:
         print "invalid option."
 
@@ -74,26 +76,26 @@ def complete_alias(cur_var, params):
         ret = (v for v in aliases.itervalues() if v.startswith(cur_var))
     return ret
 
-def set_variables(name=None, value=None):
+def set_variables(output, name=None, value=None):
     try:
         if name is None:
             for varname, varval in config:
-                print "%s = %s"%(varname, varval)
+                yield "%s = %s"%(varname, varval)
         elif value:
             config[name] = value
-            print "%s = %s"%(name, config[name])
+            yield "%s = %s"%(name, config[name])
         else:
-            print "%s = %s"%(name, config[name])
+            yield "%s = %s"%(name, config[name])
     except ConfigParser.NoOptionError:
-        print "invalid option."
+        yield "invalid option."
 
-def modify_delete(songid):
+def modify_delete(output, songid):
     if songid == 'grep':
         return ('/delete?idx=%s'%i for i in memory['grepped'])
     else:
         return '/delete?idx=%s'%songid
 
-def modify_move(songid, where=None):
+def modify_move(output, songid, where=None):
 
     if where is None:
         infos = get_infos()
@@ -103,11 +105,11 @@ def modify_move(songid, where=None):
     else:
         return '/move?s=%s&d=%s'%(songid, where)
 
-def modify_show(answers=10):
+def modify_show(output, answers=10):
     answers = get_index_or_slice(answers)
     if isinstance(answers, slice):
         memory['show_offset'] = answers.start
-        results = answers.stop if answers.stop < 0 else answers.stop - answers.start
+        results = 0 if answers.stop <= 0 else answers.stop - answers.start
         return '/playlist?res=%s&start=%s'%(results, answers.start)
     else:
         pos = memory.get('pls_position')
@@ -132,5 +134,5 @@ def tidy_show(it):
 
     for i, line in enumerate(it):
         idx = offs+i
-        print ('%3d '%idx if idx != now else ' >> ') + ' | '.join(line.split(' | ')[:4])
+        yield '%3s %s'%(idx if idx != now else ' >> ', ' | '.join(line.split(' | ')[:4]))
 

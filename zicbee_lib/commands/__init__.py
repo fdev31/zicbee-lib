@@ -7,6 +7,7 @@
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
 
+import sys
 import thread
 from urllib import quote
 from functools import partial
@@ -64,8 +65,10 @@ commands = {
 
 possible_commands = commands.keys()
 possible_commands.append('help')
+def write_lines(lines):
+    sys.stdout.writelines(l+'\n' for l in lines)
 
-def execute(name=None, line=None):
+def execute(name=None, line=None, output=write_lines):
     if line is None:
         args = name.split()
         name = args.pop(0)
@@ -128,7 +131,7 @@ def execute(name=None, line=None):
         pat, doc, extras = commands[name]
 
     if callable(pat):
-        pat = pat(*args)
+        pat = pat(output, *args)
         if not pat:
             return
 
@@ -151,15 +154,21 @@ def execute(name=None, line=None):
                 extras['uri_hook'](uri)
             r = iter_webget(uri)
             if r:
-                def _finish(out=None):
+                def _finish(r, out=None):
                     if extras and extras.get('display_modifier'):
-                        extras['display_modifier'](r)
+                        r = extras['display_modifier'](r)
+                    if out:
+                        out(r)
                     else:
-                        for line in r:
-                            if out:
-                                print line
+                        for l in r:
+                            pass
                 if extras and extras.get('threaded', False):
-                    thread.start_new(_finish, ())
+                    thread.start_new(_finish, (r,))
                 else:
-                    _finish(True)
+                    _finish(r, output)
+
+def _safe_execute(what, output, *args, **kw):
+    i = what(*args, **kw)
+    if hasattr(i, 'next'):
+        output(i)
 
