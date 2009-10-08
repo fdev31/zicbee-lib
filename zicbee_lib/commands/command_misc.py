@@ -59,12 +59,12 @@ def set_alias(output, name=None, value=None):
     try:
         if name is None:
             for varname, varval in aliases.iteritems():
-                yield "%s = %s"%(varname, varval)
+                output(["%s = %s"%(varname, varval)])
         elif value:
             aliases.add(name, value)
-            yield "%s = %s"%(name, aliases[name])
+            output(["%s = %s"%(name, aliases[name])])
         else:
-            yield "%s = %s"%(name, aliases[name])
+            output(["%s = %s"%(name, aliases[name])])
     except KeyError:
         print "invalid option."
 
@@ -80,14 +80,14 @@ def set_variables(output, name=None, value=None):
     try:
         if name is None:
             for varname, varval in config:
-                yield "%s = %s"%(varname, varval)
+                output(["%s = %s"%(varname, varval)])
         elif value:
             config[name] = value
-            yield "%s = %s"%(name, config[name])
+            output(["%s = %s"%(name, config[name])])
         else:
-            yield "%s = %s"%(name, config[name])
+            output(["%s = %s"%(name, config[name])])
     except ConfigParser.NoOptionError:
-        yield "invalid option."
+        output(["invalid option."])
 
 def modify_delete(output, songid):
     if songid == 'grep':
