@@ -29,8 +29,8 @@ def hook_prev(output):
         del memory['pls_position']
     return '/prev'
 
-def set_grep_pattern(output, pat):
-    memory['grep'] = pat
+def set_grep_pattern(output, *pat):
+    memory['grep'] = ' '.join(pat)
     return '/playlist'
 
 def apply_grep_pattern(it):
@@ -39,7 +39,7 @@ def apply_grep_pattern(it):
     grep_idx = []
     for i, line in enumerate(it):
         if pat in line.lower():
-            grep_idx.append(i)
+            grep_idx.append(i-len(grep_idx))
             yield "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
 
     memory['grepped'] = grep_idx
