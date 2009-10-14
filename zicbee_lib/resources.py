@@ -1,6 +1,6 @@
 __all__ = ['get_players', 'resource_filename']
 
-import os
+import os, sys
 from pkg_resources import iter_entry_points, resource_filename as pkg_resource_filename, ExtractionError
 
 class _FakeEntryPoint(object):
@@ -37,8 +37,10 @@ def resource_filename(package, resource):
         return pkg_resource_filename(package, resource)
     except (ExtractionError, KeyError):
         fullpath = os.path.join(package.replace('.', os.sep), resource)
-        if os.path.exists(fullpath):
-            return os.path.abspath(fullpath)
+        for path in [os.curdir] + sys.path:
+            p = os.path.join(path, fullpath)
+            if os.path.exists(p):
+                return os.path.abspath(p)
         else:
             raise
 
