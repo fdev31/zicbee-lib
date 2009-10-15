@@ -131,7 +131,7 @@ def execute(name=None, line=None, output=write_lines):
         pat, doc, extras = commands[name]
 
     if callable(pat):
-        pat = pat(output=output, *args)
+        pat = pat(output, *args)
         if not pat:
             return
 
