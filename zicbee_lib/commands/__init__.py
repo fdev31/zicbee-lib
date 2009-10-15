@@ -22,8 +22,8 @@ commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
         'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song', dict(threaded=True)),
         'search': ('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=partial(memory.__setitem__, 'last_search'))),
-        'as': (partial(inject_playlist, '>'), 'Appends last search to current playlist'),
-        'is': (partial(inject_playlist, '+'), 'Inserts last search to current playlist (after the current song)'),
+        'as': (partial(inject_playlist, symbol='>'), 'Appends last search to current playlist'),
+        'is': (partial(inject_playlist, symbol='+'), 'Inserts last search to current playlist (after the current song)'),
         'm3u': ('/db/search?fmt=m3u&pattern=%(args)s', 'Query the database, request m3u format'),
         'version': ('/db/version', 'Show DB version'),
         'db_tag': ('/db/tag/%s/%s', 'Associates a tag to a song (params: Id, Tag)'),
@@ -131,7 +131,7 @@ def execute(name=None, line=None, output=write_lines):
         pat, doc, extras = commands[name]
 
     if callable(pat):
-        pat = pat(output, *args)
+        pat = pat(output=output, *args)
         if not pat:
             return
 
