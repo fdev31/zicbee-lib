@@ -39,7 +39,7 @@ def apply_grep_pattern(it):
     grep_idx = []
     for i, line in enumerate(it):
         if pat in line.lower():
-            grep_idx.append(i-len(grep_idx))
+            grep_idx.append(i)
             yield "%3d %s"%(i, ' | '.join(line.split(' | ')[:4]))
 
     memory['grepped'] = grep_idx
@@ -91,7 +91,7 @@ def set_variables(output, name=None, value=None):
 
 def modify_delete(output, songid):
     if songid == 'grep':
-        return ('/delete?idx=%s'%i for i in memory['grepped'])
+        return ('/delete?idx=%s'%(i-idx) for idx, i in enumerate(memory['grepped']))
     else:
         return '/delete?idx=%s'%songid
 
