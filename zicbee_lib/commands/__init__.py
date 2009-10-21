@@ -13,6 +13,7 @@ from urllib import quote
 from functools import partial
 from types import GeneratorType
 from zicbee_lib.core import memory, config, iter_webget
+from zicbee_lib.debug import debug_enabled
 from .command_get import get_last_search
 from .command_misc import complete_alias, complete_set, hook_next, hook_prev
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
@@ -160,8 +161,13 @@ def execute(name=None, line=None, output=write_lines):
                     if out:
                         out(r)
                     else:
-                        for l in r:
-                            pass
+                        if debug_enabled:
+                            for l in r:
+                                out(r)
+                        else:
+                            for l in r:
+                                pass
+
                 if extras and extras.get('threaded', False):
                     thread.start_new(_finish, (r,))
                 else:
