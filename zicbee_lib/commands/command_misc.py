@@ -101,7 +101,7 @@ def modify_move(output, songid, where=None):
         infos = get_infos()
         where = int(infos['pls_position'])+1
     if songid == 'grep':
-        return ('/move?s=%s&d=%s'%(i, where) for i in memory['grepped'])
+        return ('/move?s=%s&d=%s'%(i, where+idx) for idx, i in enumerate(memory['grepped']))
     else:
         return '/move?s=%s&d=%s'%(songid, where)
 
