@@ -34,9 +34,14 @@ try: # Ensure personal dir exists
 except:
     pass
 
+if os.name in ('nt', 'ce'):
+    TMP_DIR=r"c:\Windows\Temp'
+else:
+    TMP_DIR=r"/tmp"
+
 defaults_dict = {
-        'streaming_file' : '/tmp/zsong',
-        'download_dir' : '/tmp',
+        'streaming_file' : os.path.join(TMP_DIR, 'zsong'),
+        'download_dir' : TMP_DIR,
         'db_host' : 'localhost:9090',
         'player_host' : 'localhost:9090',
         'debug' : '',
