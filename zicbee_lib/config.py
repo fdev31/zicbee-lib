@@ -123,7 +123,9 @@ class _DefaultDict(dict):
 VALID_EXTENSIONS.extend(c.strip() for c in config.custom_extensions.split(','))
 
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        {'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
+        {
+            'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
+            'm4a' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20, 'cursed': True},
             },
         valid_keys = VALID_EXTENSIONS)
 
