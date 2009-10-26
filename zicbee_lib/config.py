@@ -34,9 +34,12 @@ try: # Ensure personal dir exists
 except:
     pass
 
-if os.name in ('nt', 'ce'):
-    TMP_DIR=r"c:\Windows\Temp'
-else:
+try:
+    from win32com.shell import shell, shellcon
+    TMP_DIR = shell.SHGetPathFromIDList (
+            shell.SHGetSpecialFolderLocation(0, (shellcon.CSIDL_DESKTOP, shellcon.CSIDL_COMMON_DESKTOPDIRECTORY)[0])
+            )
+except ImportError: # sane environment ;)
     TMP_DIR=r"/tmp"
 
 defaults_dict = {
