@@ -59,7 +59,7 @@ commands = {
         'tag': ('/tag/%s', "Set a tag on current song"),
         'rate': ('/rate/%s', "Rate current song"),
         'clear': ('/clear', "Flushes the playlist"),
-#       ' seek': ('/seek/%s', "Seeks on current song"),
+        'seek': ('/seek/%s', "Seeks on current song"),
         }
 
 # execution code
