@@ -19,10 +19,54 @@ from .command_misc import complete_alias, complete_set, hook_next, hook_prev
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
 from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
+def ls_command(out, *arg):
+    path = memory.get('path', [])
+    arg = ' '.join(arg)
+
+    if len(path) == 0:
+        out(['artists', 'albums'])
+        return
+
+    if len(path) == 2 or arg:
+        return ('/db/search?fmt=txt&host=%(db_host)s&pattern='+quote('artist:%(args)s' if arg else ":".join(path)).replace('%', r'%%'))
+    elif len(path) == 1:
+        if path[0].startswith('ar'):
+            return '/db/artists'
+        else:
+            return '/db/albums'
+
+def pwd_command(out):
+    path = memory.get('path', [])
+    out(['/'+('/'.join(path))])
+
+def cd_command(out, *arg):
+    path = memory.get('path', [])
+    arg = ' '.join(arg)
+
+    if arg == '..':
+        if path:
+            path.pop(-1)
+            return
+
+    if 0 == len(path):
+        if arg.startswith('ar'):
+            path.append('artist')
+        else:
+            path.append('album')
+    elif 1 == len(path):
+        path.append(arg)
+    else:
+        out("Can't go that far ! :)")
+
+
+    memory['path'] = path
+
+remember_results = partial(memory.__setitem__, 'last_search')
+
 commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
         'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song', dict(threaded=True)),
-        'search': ('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=partial(memory.__setitem__, 'last_search'))),
+        'search': ('/db/search?fmt=txt&pattern=%(args)s', 'Query the database', dict(uri_hook=remember_results)),
         'as': (partial(inject_playlist, symbol='>'), 'Appends last search to current playlist'),
         'is': (partial(inject_playlist, symbol='+'), 'Inserts last search to current playlist (after the current song)'),
         'm3u': ('/db/search?fmt=m3u&pattern=%(args)s', 'Query the database, request m3u format'),
@@ -60,6 +104,9 @@ commands = {
         'rate': ('/rate/%s', "Rate current song"),
         'clear': ('/clear', "Flushes the playlist"),
         'seek': ('/seek/%s', "Seeks on current song"),
+        'ls': (ls_command, "List current path content", dict(uri_hook=remember_results)),
+        'cd': (cd_command, "Change current directory (use '..' to go to parent directory)", dict(uri_hook=remember_results)),
+        'pwd': (pwd_command, "Print current directory path"),
         }
 
 # execution code
