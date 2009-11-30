@@ -19,6 +19,32 @@ from .command_misc import complete_alias, complete_set, hook_next, hook_prev
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
 from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
+def complete_cd(cw, args):
+    a = ' '.join(args[1:])
+    word = len(args)-2 # remove last (index starts to 0, and first item doesn't count)
+    if not cw:
+        word += 1 # we are already on next word
+    if not memory.get('path'):
+        lls = ['artist', 'album']
+    else:
+        lls = memory.get('last_ls')
+
+    if lls:
+        riri = [w.split() for w in lls if w.startswith(a) and w != cw]
+        if len(riri) > 1:
+            return (w[word] for w in riri)
+        else:
+            return [' '.join(riri[0][word:])]
+
+def remember_ls_results(r):
+    ret = []
+    for res in r:
+        if not res.startswith('http://'):
+            ret.append(res)
+        yield res
+
+    memory['last_ls'] = ret
+
 def ls_command(out, *arg):
     path = memory.get('path', [])
     arg = ' '.join(arg)
@@ -46,22 +72,27 @@ def cd_command(out, *arg):
     if arg == '..':
         if path:
             path.pop(-1)
-            return
-
-    if 0 == len(path):
-        if arg.startswith('ar'):
-            path.append('artist')
-        else:
-            path.append('album')
-    elif 1 == len(path):
-        path.append(arg)
+    elif arg == '/' or not arg:
+        path = []
     else:
-        out("Can't go that far ! :)")
+        if 0 == len(path):
+            if arg.startswith('ar'):
+                path.append('artist')
+            else:
+                path.append('album')
+        elif 1 == len(path):
+            path.append(arg)
+        elif path[0].startswith('artist') and len(path) == 2:
+            path = ['album', arg]
+            out(['Changed path to album/%s'%arg])
+        else:
+            out(["Can't go that far ! :)"])
 
 
     memory['path'] = path
 
 remember_results = partial(memory.__setitem__, 'last_search')
+forget_results = lambda uri: memory.__delitem__('last_search')
 
 commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
@@ -104,8 +135,8 @@ commands = {
         'rate': ('/rate/%s', "Rate current song"),
         'clear': ('/clear', "Flushes the playlist"),
         'seek': ('/seek/%s', "Seeks on current song"),
-        'ls': (ls_command, "List current path content", dict(uri_hook=remember_results)),
-        'cd': (cd_command, "Change current directory (use '..' to go to parent directory)", dict(uri_hook=remember_results)),
+        'ls': (ls_command, "List current path content", dict(uri_hook=remember_results, display_modifier=remember_ls_results)),
+        'cd': (cd_command, "Change current directory (use '..' to go to parent directory)", dict(uri_hook=forget_results, complete=complete_cd)),
         'pwd': (pwd_command, "Print current directory path"),
         }
 
