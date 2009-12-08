@@ -24,13 +24,14 @@ def complete_cd(cw, args):
     word = len(args)-2 # remove last (index starts to 0, and first item doesn't count)
     if not cw:
         word += 1 # we are already on next word
-    if not memory.get('path'):
+
+    if not memory.get('path'): # nothing in memory
         lls = ['artist', 'album']
     else:
         lls = memory.get('last_ls')
 
     if lls:
-        riri = [w.split() for w in lls if w.startswith(a) and w != cw]
+        riri = [w.split() for w in lls if w.startswith(a)]
         if len(riri) > 1:
             return (w[word] for w in riri)
         else:
