@@ -6,9 +6,12 @@ from logging import getLogger
 from zicbee_lib.config import config
 
 log = getLogger('zicbee')
-def nop(*args): pass
+def nop(*args):
+    """ Don't do anything """
+    return
 
 try:
+    # tells if debug is enabled or not
     debug_enabled = (str(config.debug).lower()[:1] not in 'fn') if config.debug else False
     # disable if "false" or "no"
 except:
@@ -20,6 +23,7 @@ except:
 from pdb import set_trace as _strace
 
 def set_trace():
+    """ Breaks into a debugger prompt, should run pdb. """
     try:
         _strace()
     except :
@@ -30,6 +34,7 @@ if not debug_enabled and os.environ.get('DEBUG'):
     debug_enabled = os.environ['DEBUG'] != '0'
 
 def traced(fn):
+    """ Decorator that calls :ref:DEBUG in case of exception """
     def _get_decorator(decorated):
         def _decorator(*args, **kw):
             try:
@@ -40,6 +45,16 @@ def traced(fn):
     return _get_decorator(fn)
 
 def DEBUG(trace=True):
+    """ Prints a traceback + exception,
+    optionally breaks into a debugger.
+
+
+    Args:
+        trace (bool): if True, breaks into a debugger after showing infos.
+
+    Returns:
+        None.
+    """
     traceback.print_stack()
     traceback.print_exc()
     if trace:

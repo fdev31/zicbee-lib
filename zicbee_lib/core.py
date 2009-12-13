@@ -1,4 +1,4 @@
-__all__ = ['memory', 'iter_webget', 'webget', 'get_infos']
+__all__ = ['memory', 'iter_webget', 'get_infos']
 
 from time import time
 try:
@@ -9,6 +9,10 @@ except ImportError: # Compatibility with python3
 from .config import config, DB_DIR
 
 def get_infos():
+    """ Returns informations about the current track.
+    Returns:
+        dict. with all keys/values set
+    """
     d = {}
     for line in iter_webget('/infos'):
         line = line.strip()

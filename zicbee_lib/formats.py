@@ -1,4 +1,4 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'DEBUG', 'get_index_or_slice']
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'get_index_or_slice']
 
 import inspect
 import itertools
@@ -9,9 +9,25 @@ from zicbee_lib.debug import log
 
 # Filename path cleaner
 def clean_path(path):
+    """ Expands a path with variables & user alias
+
+
+    Args:
+        path (str): a path containing shell-like shortcuts
+    Returns:
+        str. A normalized path.
+    """
     return expanduser(abspath(expandvars(path)))
 
 def safe_path(path):
+    """ Avoids path separators in the path
+
+
+    Args:
+        path (str): the possible unsafe path
+    Returns:
+        str. A string without separator
+    """
     return path.replace(os.path.sep, ' ')
 
 # int (de)compacter [int <> small str convertors]
@@ -20,6 +36,14 @@ base = 62
 chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 def compact_int(ival):
+    """ Makes an int compact
+
+
+    Args:
+        ival (int): the integer value you want to shorten
+    Returns:
+        str. A string equivalent to the integer but with a more compact representation
+    """
     result = []
     rest = ival
     b = base
@@ -34,6 +58,14 @@ def compact_int(ival):
     return result
 
 def uncompact_int(str_val):
+    """ Makes an int from a compact string
+
+
+    Args:
+        str_val (str): The string representing a compact integer value
+    Returns:
+        int. The integer value
+    """
     # int(x, base) not used because it's limited to base 36
     unit = 1
     result = 0
@@ -44,7 +76,16 @@ def uncompact_int(str_val):
     return result
 
 def get_index_or_slice(val):
-    """ Convertgs a string to either an integer or a slice or raises a ValueError """
+    """ Converts a string representing an index into an int or a slice
+
+
+    Args:
+        val (str): string like ``4`` or ``1:10``
+    Raises:
+        :exc:`ValueError`
+    Returns:
+        :keyword:`int` or :keyword:`slice` corresponding to the given string
+    """
     try:
         i = int(val)
     except ValueError:
@@ -127,6 +168,14 @@ def dump_data_as_text(d, format):
 _plur = lambda val: 's' if val > 1 else ''
 
 def duration_tidy(orig):
+    """ Pretty formats an integer duration
+
+
+    Args:
+        orig (int, float): the value you want to pretty-print
+    Returns:
+        str. A string representing the given duration
+    """
     minutes, seconds = divmod(orig, 60)
     if minutes > 60:
         hours, minutes = divmod(minutes, 60)
@@ -152,7 +201,12 @@ def duration_tidy(orig):
 
 def get_help_from_func(cmd):
     """
-    returns a tuple (str::tidy doc, bool::is_remote) from a function
+    Returns a pretty-string from a function.
+
+    Args:
+        cmd (method): a method
+    Returns:
+        a tuple (:keyword:`str` tidy doc, :keyword:`bool` is_remote) from a function
     """
     arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
     is_remote = any(h for h in arg_names if h.startswith('host') or h.endswith('host'))

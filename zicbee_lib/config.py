@@ -42,6 +42,7 @@ try:
 except ImportError: # sane environment ;)
     TMP_DIR=r"/tmp"
 
+# Dictionary with default configuration
 defaults_dict = {
         'streaming_file' : os.path.join(TMP_DIR, 'zsong'),
         'download_dir' : TMP_DIR,
@@ -103,7 +104,10 @@ class _ConfigObj(object):
 # Ensure the file is written on drive
 #atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 
+# Config object, supports dots. and brackets[]
 config = _ConfigObj()
+
+# Dictionary-like of alias: expanded_value
 aliases = _Aliases()
 
 class _DefaultDict(dict):
@@ -128,8 +132,10 @@ class _DefaultDict(dict):
         except KeyError:
             return self._default
 
+# List of valid extensions
 VALID_EXTENSIONS.extend(c.strip() for c in config.custom_extensions.split(','))
 
+# media-specific configuration
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
         {
             'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},

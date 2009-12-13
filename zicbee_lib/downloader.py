@@ -48,11 +48,23 @@ def DownloadGenerator(uri):
 
 
 class Downloader(object):
+    """ A nice downloader class with pretty user output (stdout)
+    just call :meth:`run` with a list of uris you want to fetch
+    """
     def __init__(self, nb_dl=2):
+        """ Args:
+            nb_dl: number of downloads to do in parallel
+        """
         self._nb_dl = nb_dl
         self._last_display = time.time()
 
     def run(self, uri_list):
+        """ Takes a list of uri and returns when they are downloaded
+        Args:
+            uri_list (iterable): a list of strings
+        Returns:
+            None
+        """
         downloaders = [] # Generators to handle
         in_queue = [] # List of "TODO" uris
 
@@ -102,3 +114,4 @@ class Downloader(object):
         t = time.time() - _download_infos['start_ts']
         write_out("                         \nGot %d files in %s. Enjoy ;)\n"%(
                 _download_infos['count'], duration_tidy(t)))
+
