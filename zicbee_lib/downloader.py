@@ -60,6 +60,7 @@ class Downloader(object):
 
     def run(self, uri_list):
         """ Takes a list of uri and returns when they are downloaded
+
         Args:
             uri_list (iterable): a list of strings
         Returns:

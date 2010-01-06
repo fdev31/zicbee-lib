@@ -30,12 +30,12 @@ This package allow any python developper to build his own client
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         entry_points = {
-#            "console_scripts": [
-#                'wasp = zicbee_lib:startup',
-#                ],
-#            "setuptools.installation" : [
-#                'eggsecutable = zicbee_wasp:startup'
-#                ]
+            "console_scripts": [
+                'wasp = zicbee_lib.wasp:startup',
+                ],
+            "setuptools.installation" : [
+                'eggsecutable = zicbee_lib.wasp:startup'
+                ]
             },
 
         dependency_links = [

@@ -7,6 +7,8 @@
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
 
+ALLOW_ASYNC = True
+
 import sys
 import thread
 from urllib import quote
@@ -206,7 +208,7 @@ def execute(name=None, line=None, output=write_lines):
 
     try:
         pat, doc = commands[name]
-        extras = None
+        extras = {}
     except ValueError:
         pat, doc, extras = commands[name]
 
@@ -230,12 +232,12 @@ def execute(name=None, line=None, output=write_lines):
         except Exception, e:
             print "Invalid arguments: %s"%e
         else:
-            if extras and extras.get('uri_hook'):
+            if extras.get('uri_hook'):
                 extras['uri_hook'](uri)
             r = iter_webget(uri)
             if r:
                 def _finish(r, out=None):
-                    if extras and extras.get('display_modifier'):
+                    if extras.get('display_modifier'):
                         r = extras['display_modifier'](r)
                     if out:
                         out(r)
@@ -247,7 +249,7 @@ def execute(name=None, line=None, output=write_lines):
                             for l in r:
                                 pass
 
-                if extras and extras.get('threaded', False):
+                if ALLOW_ASYNC and extras.get('threaded', False):
                     thread.start_new(_finish, (r,))
                 else:
                     _finish(r, output)
