@@ -78,14 +78,17 @@ def complete_alias(cur_var, params):
 
 def set_variables(output, name=None, value=None):
     try:
+        def _out(k, v):
+            return output(["%s = %s"%(k, ', '.join(v) if isinstance(v, list) else v )])
         if name is None:
-            for varname, varval in config:
-                output(["%s = %s"%(varname, varval)])
-        elif value:
-            config[name] = value
-            output(["%s = %s"%(name, config[name])])
+            for varname, v in config:
+                _out(varname, v)
         else:
-            output(["%s = %s"%(name, config[name])])
+            if value is not None:
+                config[name] = value
+
+            v = config[name]
+            _out(name, v)
     except ConfigParser.NoOptionError:
         output(["invalid option."])
 

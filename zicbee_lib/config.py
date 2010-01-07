@@ -7,6 +7,9 @@ __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
 VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac']
 
+def get_list_from_str(s):
+    return [c.strip() for c in s.split(',')]
+
 class _Aliases(dict):
     def __init__(self):
         dict.__init__(self)
@@ -78,12 +81,34 @@ class _ConfigObj(object):
     def __setattr__(self, name, val):
 
         if name.endswith('_host'):
+            ref = self[name]
 
-            if val in aliases:
-                val = aliases[val]
+            if val[0] in '+-':
+                if val[0] == '+':
+                    mode = 'a'
+                else:
+                    mode = 'd'
+                val = val[1:].strip()
+            else:
+                mode = 'w'
 
-            if ':' not in val:
-                val = '%s:%s'%( val, self.default_port )
+            if isinstance(val, basestring):
+                val = (v.strip() for v in val.split(','))
+
+            vals = (aliases[v] if v in aliases else v for v in val)
+            vals = ('%s:%s'%( v, self.default_port ) if ':' not in v
+                    else v for v in vals)
+
+            if mode != 'w':
+                if mode == 'a':
+                    ref.extend(vals)
+                elif mode == 'd':
+                    for v in vals:
+                        ref.remove(v)
+                vals = ref
+
+            val = ','.join(vals)
+
         elif val.lower() in ('off', 'no'):
             val = ''
 
@@ -92,7 +117,10 @@ class _ConfigObj(object):
         return val
 
     def __getattr__(self, name):
-        return self._cfg.get('DEFAULT', name)
+        v = self._cfg.get('DEFAULT', name)
+        if name in ('db_host', 'player_host', 'custom_extensions', 'players'):
+            return [s.strip() for s in v.split(',')]
+        return v
 
     __setitem__ = __setattr__
     __getitem__ = __getattr__
@@ -133,7 +161,7 @@ class _DefaultDict(dict):
             return self._default
 
 # List of valid extensions
-VALID_EXTENSIONS.extend(c.strip() for c in config.custom_extensions.split(','))
+VALID_EXTENSIONS.extend(config.custom_extensions)
 
 # media-specific configuration
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
