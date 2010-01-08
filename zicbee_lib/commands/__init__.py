@@ -255,27 +255,26 @@ def execute(name=None, line=None, output=write_lines):
     if extras.get('uri_hook'):
         extras['uri_hook'](uris)
 
-    for uri in uris:
-        print uris
-        r = unroll(iter_webget(uri) for uri in uris)
-        if r:
-            def _finish(r, out=None):
-                if extras.get('display_modifier'):
-                    r = extras['display_modifier'](r)
-                if out:
-                    out(r)
-                else:
-                    if debug_enabled:
-                        for l in r:
-                            out(r)
-                    else:
-                        for l in r:
-                            pass
+    r = unroll(iter_webget(uri) for uri in uris)
 
-            if ALLOW_ASYNC and extras.get('threaded', False):
-                thread.start_new(_finish, (r,))
+    if r:
+        def _finish(r, out=None):
+            if extras.get('display_modifier'):
+                r = extras['display_modifier'](r)
+            if out:
+                out(r)
             else:
-                _finish(r, output)
+                if debug_enabled:
+                    for l in r:
+                        out(r)
+                else:
+                    for l in r:
+                        pass
+
+        if ALLOW_ASYNC and extras.get('threaded', False):
+            thread.start_new(_finish, (r,))
+        else:
+            _finish(r, output)
 
 def _safe_execute(what, output, *args, **kw):
     i = what(*args, **kw)
