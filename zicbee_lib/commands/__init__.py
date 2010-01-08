@@ -243,7 +243,9 @@ def execute(name=None, line=None, output=write_lines):
                 # (MIXING args & kwargs is not supported)
                 for player_host in config['player_host']:
                     for db_host in config['db_host']:
-                        uris.append( pattern%{'db_host': db_host, 'player_host': player_host} )
+                        expansion['db_host'] = db_host
+                        expansion['player_host'] = player_host
+                        uris.append( pattern%expansion )
             else:
                 uris = [pattern%expansion]
 
