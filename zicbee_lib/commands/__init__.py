@@ -240,12 +240,26 @@ def execute(name=None, line=None, output=write_lines):
         try:
             if '_host)s' in pattern:
                 # assumes expansion is dict...
-                # (MIXING args & kwargs is not supported)
-                for player_host in config['player_host']:
+                # WARNINGS:
+                # * mixing args & kwargs is not supported)
+                # * can't use both hosts in same request !!
+                if pattern.startswith('/db'):
+                    base_hosts = config['db_host']
+                else:
+                    base_hosts = config['player_host']
+
+                prefixes = [ 'http://%s'%h for h in base_hosts ]
+
+                if '%(player_host)s' in pattern:
+                    for player_host in config['player_host']:
+                        expansion['player_host'] = player_host
+                        for p in prefixes:
+                            uris.append( p + (pattern%expansion) )
+                elif '%(db_host)s' in pattern:
                     for db_host in config['db_host']:
                         expansion['db_host'] = db_host
-                        expansion['player_host'] = player_host
-                        uris.append( pattern%expansion )
+                        for p in prefixes:
+                            uris.append( p + (pattern%expansion) )
             else:
                 uris = [pattern%expansion]
 
