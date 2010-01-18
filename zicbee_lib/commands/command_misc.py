@@ -46,10 +46,10 @@ def apply_grep_pattern(it):
 
 def inject_playlist(output, symbol):
     uri = memory.get('last_search')
-    if uri is None:
+    if not uri:
         print "Do a search first !"
         return
-    pattern = uri.split('pattern=', 1)[1]
+    pattern = uri[0].split('pattern=', 1)[1] # the pattern should be the same for anybody
     # crazy escaping
     substr = ("%s%%20pls%%3A%%20%s%%23"%(pattern, quote(symbol))).replace('%', '%%')
     v = "/search?host=%(db_host)s&pattern="+substr
