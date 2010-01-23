@@ -123,7 +123,7 @@ class _ConfigObj(object):
 
     def __getattr__(self, name):
         v = self._cfg.get('DEFAULT', name)
-        if name in ('db_host', 'player_host', 'custom_extensions', 'players'):
+        if name in ('db_host', 'player_host', 'custom_extensions', 'players', 'allow_remote_admin'):
             return [s.strip() for s in v.split(',')]
         return v
 
