@@ -2,22 +2,26 @@ import os
 import atexit
 import ConfigParser
 
-__all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
+__all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases', 'shortcuts']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
 VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac']
 
 class _Aliases(dict):
-    def __init__(self):
+    def __init__(self, name):
         dict.__init__(self)
-        self._db_dir = os.path.join(DB_DIR, 'aliases.txt')
+        self._db_dir = os.path.join(DB_DIR, '%s.txt'%name)
         try:
             self._read()
         except IOError:
             self._write()
 
-    def add(self, name, address):
-        self[name] = address
+    def __delitem__(self, name):
+        dict.__delitem__(self, name)
+        self._write()
+
+    def __setitem__(self, name, address):
+        dict.__setitem__(self, name, address)
         self._write()
 
     def _read(self):
@@ -108,7 +112,8 @@ class _ConfigObj(object):
 config = _ConfigObj()
 
 # Dictionary-like of alias: expanded_value
-aliases = _Aliases()
+aliases = _Aliases('aliases')
+shortcuts = _Aliases('shortcuts')
 
 class _DefaultDict(dict):
     def __init__(self, default, a, valid_keys=None):

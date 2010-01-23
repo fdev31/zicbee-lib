@@ -16,8 +16,9 @@ from functools import partial
 from types import GeneratorType
 from zicbee_lib.core import memory, config, iter_webget
 from zicbee_lib.debug import debug_enabled
+from zicbee_lib.config import shortcuts
 from .command_get import get_last_search
-from .command_misc import complete_alias, complete_set, hook_next, hook_prev
+from .command_misc import complete_alias, complete_set, hook_next, hook_prev, set_shortcut
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
 from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
@@ -112,7 +113,8 @@ commands = {
         'kill': ('/db/kill', 'Power down'),
         'get': (get_last_search, 'Download results of last search or play command'),
         'set': (set_variables, 'List or set application variables, use "off" or "no" to disable an option.', dict(complete=complete_set)),
-        'alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
+        'host_alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
+        'alias': (set_shortcut, 'Lists or set al custom commands (shortcuts)'),
         # complete_set': (lambda: [v[0] for v in config], lambda: set(v[1] for v in config))
         'stfu': ('/close', 'Closes player'),
         'pause': ('/pause', 'Toggles pause'),
@@ -151,7 +153,17 @@ def write_lines(lines):
     sys.stdout.writelines(l+'\n' for l in lines)
 
 def execute(name=None, line=None, output=write_lines):
-    if line is None:
+    # real alias support (not host alias, full command)
+    if name in shortcuts:
+        name = shortcuts[name]
+        if ' ' in name:
+            name, rest = name.split(None, 1)
+            if not line:
+                line = rest
+            else:
+                line = "%s %s"%(rest, line)
+
+    if not line:
         args = name.split()
         name = args.pop(0)
     else:
