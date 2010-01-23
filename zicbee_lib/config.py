@@ -61,6 +61,7 @@ defaults_dict = {
         'default_port': '9090',
         'web_skin' : 'default',
         'fork': 'yes',
+        'allow_remote_admin': 'yes',
         'socket_timeout': '30',
         'enable_history': 'yes',
         'custom_extensions': 'mpg,mp2',
