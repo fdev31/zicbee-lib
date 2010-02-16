@@ -10,10 +10,24 @@
 ALLOW_ASYNC = True
 
 from itertools import chain
-from itertools import izip_longest
+try:
+    from itertools import izip_longest
 
-def unroll(i):
-    return chain(*izip_longest(*i))
+    def unroll(i):
+        return chain(*izip_longest(*i))
+except ImportError:
+    # python < 2.6
+    def unroll(i):
+        l = list(i)
+        while True:
+            for i in l:
+                try:
+                    yield i.next()
+                except StopIteration:
+                    l.remove(i)
+
+            if not l:
+                break
 
 # map(lambda *a: [a for a in a if a is not None], xrange(3), xrange(5))
 
