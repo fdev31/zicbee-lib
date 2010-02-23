@@ -280,14 +280,26 @@ def execute(name=None, line=None, output=write_lines):
                     for player_host in config['player_host']:
                         expansion['player_host'] = player_host
                         for p in prefixes:
-                            uris.append( p + (pattern%expansion) )
+                            try:
+                                uris.append( p + (pattern%expansion) )
+                            except TypeError:
+                                print "Wrong number of arguments"
+                                return
                 elif '%(db_host)s' in pattern:
                     for db_host in config['db_host']:
                         expansion['db_host'] = db_host
                         for p in prefixes:
-                            uris.append( p + (pattern%expansion) )
+                            try:
+                                uris.append( p + (pattern%expansion) )
+                            except TypeError:
+                                print "Wrong number of arguments"
+                                return
             else:
-                uris = [pattern%expansion]
+                try:
+                    uris = [pattern%expansion]
+                except TypeError:
+                    print "Wrong number of arguments"
+                    return
 
         except Exception, e:
             print "Invalid arguments: %s"%e
