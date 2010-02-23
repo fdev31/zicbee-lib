@@ -2,16 +2,17 @@ import os
 from zicbee_lib.downloader import Downloader
 from zicbee_lib.core import iter_webget, memory
 from zicbee_lib.config import config
+from zicbee_lib.commands import unroll
 
 def get_last_search(output):
-    uri = memory.get('last_search')
-    if not uri:
+    uris = memory.get('last_search')
+    if not uris:
         print "No previous search, use shell to re-use previous result!"
         return
 
     to_download = []
     dst_prefix = config.download_dir
-    for infos in iter_webget(memory['last_search']):
+    for infos in unroll(iter_webget(u) for u in memory['last_search']):
         uri, artist, album, title = infos.split(' | ', 4)
         ext = uri.rsplit('.', 1)[1].rsplit('?', 1)[0]
         if not os.path.exists(artist):

@@ -1,13 +1,35 @@
 # commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
 # in request string, you can use two forms: positional or named
 # in positional form, you should have as many %s as required parameters, they will be passed in given order
-# in named form, you have dict expension for: args (a string containing all arguments separated by a space), db_host, player_host
+# in named form, you have dict expansion for: args (a string containing all arguments separated by a space), db_host, player_host
 # if given an handler_function, this is executed to get the request string
 #
 # In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
 # the request result is print on the console
 
 ALLOW_ASYNC = True
+
+from itertools import chain
+try:
+    from itertools import izip_longest
+
+    def unroll(i):
+        return chain(*izip_longest(*i))
+except ImportError:
+    # python < 2.6
+    def unroll(i):
+        l = list(i)
+        while True:
+            for i in l:
+                try:
+                    yield i.next()
+                except StopIteration:
+                    l.remove(i)
+
+            if not l:
+                break
+
+# map(lambda *a: [a for a in a if a is not None], xrange(3), xrange(5))
 
 import sys
 import thread
@@ -16,8 +38,9 @@ from functools import partial
 from types import GeneratorType
 from zicbee_lib.core import memory, config, iter_webget
 from zicbee_lib.debug import debug_enabled
+from zicbee_lib.config import shortcuts
 from .command_get import get_last_search
-from .command_misc import complete_alias, complete_set, hook_next, hook_prev
+from .command_misc import complete_alias, complete_set, hook_next, hook_prev, set_shortcut
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
 from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
 
@@ -112,7 +135,8 @@ commands = {
         'kill': ('/db/kill', 'Power down'),
         'get': (get_last_search, 'Download results of last search or play command'),
         'set': (set_variables, 'List or set application variables, use "off" or "no" to disable an option.', dict(complete=complete_set)),
-        'alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
+        'host_alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
+        'alias': (set_shortcut, 'Lists or set al custom commands (shortcuts)'),
         # complete_set': (lambda: [v[0] for v in config], lambda: set(v[1] for v in config))
         'stfu': ('/close', 'Closes player'),
         'pause': ('/pause', 'Toggles pause'),
@@ -151,7 +175,17 @@ def write_lines(lines):
     sys.stdout.writelines(l+'\n' for l in lines)
 
 def execute(name=None, line=None, output=write_lines):
-    if line is None:
+    # real alias support (not host alias, full command)
+    if name in shortcuts:
+        name = shortcuts[name]
+        if ' ' in name:
+            name, rest = name.split(None, 1)
+            if not line:
+                line = rest
+            else:
+                line = "%s %s"%(rest, line)
+
+    if not line:
         args = name.split()
         name = args.pop(0)
     else:
@@ -222,37 +256,77 @@ def execute(name=None, line=None, output=write_lines):
     if not isinstance(pat, (list, tuple, GeneratorType)):
         pat = [pat]
 
+    uris = []
     for pattern in pat:
         if '%s' in pattern:
             expansion = tuple(args)
         else:
-            expansion = dict(args = '%20'.join(args), db_host=config['db_host'], player_host=config['player_host'])
+            expansion = dict(args = '%20'.join(args))
+
         try:
-            uri = pattern%expansion
+            if '_host)s' in pattern:
+                # assumes expansion is dict...
+                # WARNINGS:
+                # * mixing args & kwargs is not supported)
+                # * can't use both hosts in same request !!
+                if pattern.startswith('/db'):
+                    base_hosts = config['db_host']
+                else:
+                    base_hosts = config['player_host']
+
+                prefixes = [ 'http://%s'%h for h in base_hosts ]
+
+                if '%(player_host)s' in pattern:
+                    for player_host in config['player_host']:
+                        expansion['player_host'] = player_host
+                        for p in prefixes:
+                            try:
+                                uris.append( p + (pattern%expansion) )
+                            except TypeError:
+                                print "Wrong number of arguments"
+                                return
+                elif '%(db_host)s' in pattern:
+                    for db_host in config['db_host']:
+                        expansion['db_host'] = db_host
+                        for p in prefixes:
+                            try:
+                                uris.append( p + (pattern%expansion) )
+                            except TypeError:
+                                print "Wrong number of arguments"
+                                return
+            else:
+                try:
+                    uris = [pattern%expansion]
+                except TypeError:
+                    print "Wrong number of arguments"
+                    return
+
         except Exception, e:
             print "Invalid arguments: %s"%e
-        else:
-            if extras.get('uri_hook'):
-                extras['uri_hook'](uri)
-            r = iter_webget(uri)
-            if r:
-                def _finish(r, out=None):
-                    if extras.get('display_modifier'):
-                        r = extras['display_modifier'](r)
-                    if out:
-                        out(r)
-                    else:
-                        if debug_enabled:
-                            for l in r:
-                                out(r)
-                        else:
-                            for l in r:
-                                pass
 
-                if ALLOW_ASYNC and extras.get('threaded', False):
-                    thread.start_new(_finish, (r,))
+    if extras.get('uri_hook'):
+        extras['uri_hook'](uris)
+
+    r = unroll(iter_webget(uri) for uri in uris)
+
+    if r:
+        def _finish(r, out=None):
+            if extras.get('display_modifier'):
+                r = extras['display_modifier'](r)
+            if out:
+                out(r)
+            else:
+                if debug_enabled:
+                    for l in r:
+                        out(r)
                 else:
-                    _finish(r, output)
+                    for l in r:
+                        pass
+
+        if ALLOW_ASYNC and extras.get('threaded', False):
+            thread.start_new(_finish, (r,))
+        else:
+            _finish(r, output)
 
 def _safe_execute(what, output, *args, **kw):
     i = what(*args, **kw)

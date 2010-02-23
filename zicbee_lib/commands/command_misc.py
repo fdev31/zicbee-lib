@@ -1,8 +1,9 @@
 __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_playlist',
-'hook_next', 'hook_prev', 'complete_set', 'complete_alias', 'set_alias', 'set_grep_pattern', 'apply_grep_pattern']
+'hook_next', 'hook_prev', 'complete_set', 'complete_alias', 'set_alias', 'set_grep_pattern',
+'apply_grep_pattern', 'set_shortcut']
 
 import ConfigParser
-from zicbee_lib.config import config, aliases
+from zicbee_lib.config import config, aliases, shortcuts
 from zicbee_lib.core import get_infos, memory
 from zicbee_lib.formats import get_index_or_slice
 from urllib import quote
@@ -46,14 +47,35 @@ def apply_grep_pattern(it):
 
 def inject_playlist(output, symbol):
     uri = memory.get('last_search')
-    if uri is None:
+    if not uri:
         print "Do a search first !"
         return
-    pattern = uri.split('pattern=', 1)[1]
+    pattern = uri[0].split('pattern=', 1)[1] # the pattern should be the same for anybody
     # crazy escaping
     substr = ("%s%%20pls%%3A%%20%s%%23"%(pattern, quote(symbol))).replace('%', '%%')
     v = "/search?host=%(db_host)s&pattern="+substr
     return v
+
+def set_shortcut(output, name=None, *args):
+    if args:
+        value = ' '.join(args)
+    else:
+        value = None
+
+    try:
+        if name is None:
+            for varname, varval in shortcuts.iteritems():
+                output(["%s = %s"%(varname, varval)])
+        elif value:
+            if value.lower() in ('no', 'off', 'false'):
+                del shortcuts[name]
+            else:
+                shortcuts[name] = value
+                output(["%s = %s"%(name, shortcuts[name])])
+        else:
+            output(["%s = %s"%(name, shortcuts[name])])
+    except KeyError:
+        print "invalid option."
 
 def set_alias(output, name=None, value=None):
     try:
@@ -61,8 +83,11 @@ def set_alias(output, name=None, value=None):
             for varname, varval in aliases.iteritems():
                 output(["%s = %s"%(varname, varval)])
         elif value:
-            aliases.add(name, value)
-            output(["%s = %s"%(name, aliases[name])])
+            if value.lower() in ('no', 'off', 'false'):
+                del aliases[name]
+            else:
+                aliases[name] = value
+                output(["%s = %s"%(name, aliases[name])])
         else:
             output(["%s = %s"%(name, aliases[name])])
     except KeyError:
@@ -78,14 +103,17 @@ def complete_alias(cur_var, params):
 
 def set_variables(output, name=None, value=None):
     try:
+        def _out(k, v):
+            return output(["%s = %s"%(k, ', '.join(v) if isinstance(v, list) else v )])
         if name is None:
-            for varname, varval in config:
-                output(["%s = %s"%(varname, varval)])
-        elif value:
-            config[name] = value
-            output(["%s = %s"%(name, config[name])])
+            for varname, v in config:
+                _out(varname, v)
         else:
-            output(["%s = %s"%(name, config[name])])
+            if value is not None:
+                config[name] = value
+
+            v = config[name]
+            _out(name, v)
     except ConfigParser.NoOptionError:
         output(["invalid option."])
 

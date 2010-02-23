@@ -2,22 +2,29 @@ import os
 import atexit
 import ConfigParser
 
-__all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases']
+__all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases', 'shortcuts']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
 VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac']
 
+def get_list_from_str(s):
+    return [c.strip() for c in s.split(',')]
+
 class _Aliases(dict):
-    def __init__(self):
+    def __init__(self, name):
         dict.__init__(self)
-        self._db_dir = os.path.join(DB_DIR, 'aliases.txt')
+        self._db_dir = os.path.join(DB_DIR, '%s.txt'%name)
         try:
             self._read()
         except IOError:
             self._write()
 
-    def add(self, name, address):
-        self[name] = address
+    def __delitem__(self, name):
+        dict.__delitem__(self, name)
+        self._write()
+
+    def __setitem__(self, name, address):
+        dict.__setitem__(self, name, address)
         self._write()
 
     def _read(self):
@@ -54,6 +61,7 @@ defaults_dict = {
         'default_port': '9090',
         'web_skin' : 'default',
         'fork': 'yes',
+        'allow_remote_admin': 'yes',
         'socket_timeout': '30',
         'enable_history': 'yes',
         'custom_extensions': 'mpg,mp2',
@@ -78,12 +86,34 @@ class _ConfigObj(object):
     def __setattr__(self, name, val):
 
         if name.endswith('_host'):
+            ref = self[name]
 
-            if val in aliases:
-                val = aliases[val]
+            if val[0] in '+-':
+                if val[0] == '+':
+                    mode = 'a'
+                else:
+                    mode = 'd'
+                val = val[1:].strip()
+            else:
+                mode = 'w'
 
-            if ':' not in val:
-                val = '%s:%s'%( val, self.default_port )
+            if isinstance(val, basestring):
+                val = (v.strip() for v in val.split(','))
+
+            vals = (aliases[v] if v in aliases else v for v in val)
+            vals = ('%s:%s'%( v, self.default_port ) if ':' not in v
+                    else v for v in vals)
+
+            if mode != 'w':
+                if mode == 'a':
+                    ref.extend(vals)
+                elif mode == 'd':
+                    for v in vals:
+                        ref.remove(v)
+                vals = ref
+
+            val = ','.join(vals)
+
         elif val.lower() in ('off', 'no'):
             val = ''
 
@@ -92,7 +122,10 @@ class _ConfigObj(object):
         return val
 
     def __getattr__(self, name):
-        return self._cfg.get('DEFAULT', name)
+        v = self._cfg.get('DEFAULT', name)
+        if name in ('db_host', 'player_host', 'custom_extensions', 'players', 'allow_remote_admin'):
+            return [s.strip() for s in v.split(',')]
+        return v
 
     __setitem__ = __setattr__
     __getitem__ = __getattr__
@@ -108,7 +141,8 @@ class _ConfigObj(object):
 config = _ConfigObj()
 
 # Dictionary-like of alias: expanded_value
-aliases = _Aliases()
+aliases = _Aliases('aliases')
+shortcuts = _Aliases('shortcuts')
 
 class _DefaultDict(dict):
     def __init__(self, default, a, valid_keys=None):
@@ -133,7 +167,7 @@ class _DefaultDict(dict):
             return self._default
 
 # List of valid extensions
-VALID_EXTENSIONS.extend(c.strip() for c in config.custom_extensions.split(','))
+VALID_EXTENSIONS.extend(config.custom_extensions)
 
 # media-specific configuration
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},

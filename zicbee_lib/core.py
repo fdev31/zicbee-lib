@@ -7,6 +7,7 @@ except ImportError: # Compatibility with python3
     import urllib2 # WARNING: urllib2 makes IncompleteRead sometimes... observed with python2.x
 
 from .config import config, DB_DIR
+from itertools import chain
 
 def get_infos():
     """ Returns informations about the current track.
@@ -40,13 +41,15 @@ def _safe_webget_iter(uri):
 def iter_webget(uri):
     if not '://' in uri:
         if 'db' in uri.split('/', 4)[:-1]:
-            host = config['db_host']
+            hosts = config['db_host']
         else:
-            host = config['player_host']
+            hosts = config['player_host']
 
-        uri = 'http://%s/%s'%(host, uri.lstrip('/'))
+        uri = uri.lstrip('/')
+        return chain(*(_safe_webget_iter('http://%s/%s'%(host, uri)) for host in hosts))
     try:
         return _safe_webget_iter(uri)
+        uri = [uri]
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
 
