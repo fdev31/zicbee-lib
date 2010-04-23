@@ -107,7 +107,7 @@ def set_variables(output, name=None, value=None):
             return output(["%s = %s"%(k, ', '.join(v) if isinstance(v, list) else v )])
         if name is None:
             for varname, v in config:
-                _out(varname, v)
+                _out(varname, v or 'off')
         else:
             if value is not None:
                 config[name] = value
