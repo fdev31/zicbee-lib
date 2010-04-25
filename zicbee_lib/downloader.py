@@ -2,13 +2,9 @@ import os
 import sys
 import time
 from zicbee_lib.core import urllib2
+from zicbee_lib.formats import duration_tidy
 from itertools import chain
 from weakref import WeakKeyDictionary
-try:
-    from zicbee.core.zutils import duration_tidy
-except ImportError:
-    def duration_tidy(secs):
-        return "%.1f s."%(secs)
 
 def DownloadGenerator(uri):
     uri, filename = uri
