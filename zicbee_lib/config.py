@@ -5,7 +5,7 @@ import ConfigParser
 __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases', 'shortcuts']
 
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
-VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac']
+VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac', 'mpc', 'spx']
 
 def get_list_from_str(s):
     return [c.strip() for c in s.split(',')]

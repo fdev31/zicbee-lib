@@ -29,6 +29,7 @@ class Shell(Cmd):
             else:
                 setattr(self, 'complete_%s'%cmd, partial(complete_command, cmd, completer))
         Cmd.__init__(self)
+        print "Playing on http://%s songs from http://%s/db"%(config['player_host'][0], config['db_host'][0])
         self.names = ['do_%s'%c for c in commands.keys()] + ['do_help']
 
     def onecmd(self, line):
