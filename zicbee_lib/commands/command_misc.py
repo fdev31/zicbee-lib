@@ -4,7 +4,7 @@ __all__ = [ 'modify_move', 'modify_show', 'set_variables', 'tidy_show', 'inject_
 
 import ConfigParser
 from zicbee_lib.config import config, aliases, shortcuts
-from zicbee_lib.core import get_infos, memory
+from zicbee_lib.core import get_infos, memory, iter_webget
 from zicbee_lib.formats import get_index_or_slice
 from urllib import quote
 
@@ -132,6 +132,11 @@ def modify_move(output, songid, where=None):
         return ('/move?s=%s&d=%s'%(i, where+idx) for idx, i in enumerate(memory['grepped']))
     else:
         return '/move?s=%s&d=%s'%(songid, where)
+
+def random_command(output, what='artist'):
+    arg = iter_webget('http://%s/db/random?what=%s'%(config.db_host[0], what)).next()
+    return '/search?%s'%arg
+
 
 def modify_show(output, answers=10):
     answers = get_index_or_slice(answers)
