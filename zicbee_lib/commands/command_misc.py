@@ -134,8 +134,9 @@ def modify_move(output, songid, where=None):
         return '/move?s=%s&d=%s'%(songid, where)
 
 def random_command(output, what='artist'):
-    arg = iter_webget('http://%s/db/random?what=%s'%(config.db_host[0], what)).next()
-    return '/search?%s'%arg
+    dbh = config.db_host[0]
+    arg = iter_webget('http://%s/db/random?what=%s'%(dbh, what)).next()
+    return '/search?%s&host=%s'%(arg, dbh)
 
 
 def modify_show(output, answers=10):
