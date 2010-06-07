@@ -43,7 +43,7 @@ from .command_get import get_last_search
 from .command_misc import complete_alias, complete_set, hook_next, hook_prev, set_shortcut
 from .command_misc import inject_playlist, modify_move, modify_show, set_alias, modify_delete
 from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep_pattern
-from .command_misc import random_command
+from .command_misc import random_command, show_random_result
 
 def complete_cd(cw, args):
     a = ' '.join(args[1:])
@@ -160,7 +160,7 @@ commands = {
         'guess': ('/guess/%(args)s', "Tells if you are right (blind mode)"),
         'shuffle': ('/shuffle', "Shuffles the playlist"),
         'tag': ('/tag/%s', "Set a tag on current song"),
-        'random': (random_command, "Picks a random artist and play it (random album if 'album' is the parameter"),
+        'random': (random_command, "Picks a random artist and play it (random album if 'album' is the parameter", dict(display_modifier=show_random_result)),
         'rate': ('/rate/%s', "Rate current song"),
         'clear': ('/clear', "Flushes the playlist"),
         'seek': ('/seek/%s', "Seeks on current song"),

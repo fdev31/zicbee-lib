@@ -144,6 +144,9 @@ def random_command(output, what='artist'):
     arg = iter_webget('http://%s/db/random?what=%s'%(dbh, what)).next()
     return '/search?%s&host=%s'%(arg, dbh)
 
+def show_random_result(it):
+    uri = modify_show(None)
+    return ('-'.join(r.split('|')[1:4]) for r in iter_webget(uri))
 
 def modify_show(output, answers=10):
     answers = get_index_or_slice(answers)
