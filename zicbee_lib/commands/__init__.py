@@ -173,6 +173,8 @@ commands = {
 
 possible_commands = commands.keys()
 possible_commands.append('help')
+possible_commands.extend(shortcuts.keys())
+
 def write_lines(lines):
     sys.stdout.writelines(l+'\n' for l in lines)
 
