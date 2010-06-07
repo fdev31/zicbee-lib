@@ -17,7 +17,13 @@ def complete_set(cur_var, params):
         # complete values
         if '_host' in params[1]:
             data.update(('___'+v, v) for v in aliases)
-        ret = set([v for v in data.itervalues()] + ['localhost'])
+        ret = [v for v in data.itervalues()]
+        for r in list(ret):
+            if isinstance(r, (list, tuple)):
+                ret.remove(r)
+                ret.extend(r)
+        ret.append('localhost')
+        ret = set(r for r in ret if r.startswith(cur_var))
     return ret
 
 def hook_next(output):
