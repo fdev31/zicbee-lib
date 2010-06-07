@@ -60,7 +60,7 @@ defaults_dict = {
         'history_size' : 50,
         'default_port': '9090',
         'web_skin' : 'default',
-        'fork': 'yes',
+        'fork': 'no',
         'allow_remote_admin': 'yes',
         'socket_timeout': '30',
         'enable_history': 'yes',
