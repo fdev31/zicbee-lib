@@ -231,9 +231,10 @@ def execute(name=None, line=None, output=write_lines):
 
     Playlists (only with play command):
         use "pls: <name>" to store the request as "<name>"
-        add ">" prefix to name to append instead of replacing
-        "+" prefix inserts just next
-        "#" = special name to point "current" playlist
+        The name can receive special prefix from this list:
+            ">" to append instead of replacing
+            "+" inserts just next current playing song
+        Note that "#" is a special name to point "current" playlist
 
     Numerics (length, track, score) have rich operators, default is "==" for equality
         length: >= 60*5
