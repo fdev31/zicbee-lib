@@ -139,7 +139,7 @@ commands = {
         'host_alias': (set_alias, 'List or set hosts aliases', dict(complete=complete_alias)),
         'alias': (set_shortcut, 'Lists or set al custom commands (shortcuts)'),
         # complete_set': (lambda: [v[0] for v in config], lambda: set(v[1] for v in config))
-        'stfu': ('/close', 'Closes player'),
+        'stfu': ('/close', 'Kill player host'),
         'pause': ('/pause', 'Toggles pause'),
         'next': (hook_next, 'Zap current track'),
         'prev': (hook_prev, 'Go back to last song'),
