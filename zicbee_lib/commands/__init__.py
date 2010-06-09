@@ -252,7 +252,12 @@ def execute(name=None, line=None, output=write_lines):
         pat, doc, extras = commands[name]
 
     if callable(pat):
-        pat = pat(output, *args)
+        try:
+            pat = pat(output, *args)
+        except TypeError, e:
+            print "Wrong arguments, %s%s"%(name, e.args[0].split(')', 1)[1])
+            return
+
         if not pat:
             return
 
