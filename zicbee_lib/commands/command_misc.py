@@ -107,7 +107,18 @@ def complete_alias(cur_var, params):
         ret = (v for v in aliases.itervalues() if v.startswith(cur_var))
     return ret
 
-def set_variables(output, name=None, value=None):
+def set_variables(output, name=None, value=None, *args):
+    CST = ' ,='
+    if '=' in name:
+        nargs = (n.strip() for n in name.split('=') if n.strip())
+        name = nargs.next()
+        args = tuple(nargs) + args
+
+    if args:
+        value = ("%s,%s"%(value.strip(CST), ','.join(a.strip(CST) for a in args))).strip(CST)
+
+    name = name.strip(CST)
+
     try:
         def _out(k, v):
             return output(["%s = %s"%(k, ', '.join(v) if isinstance(v, list) else v )])
