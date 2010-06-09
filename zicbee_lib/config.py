@@ -66,7 +66,7 @@ defaults_dict = {
         'socket_timeout': '30',
         'enable_history': 'yes',
         'custom_extensions': 'mpg,mp2',
-        'players' : '',
+        'players' : 'vlc,gst,mplayer',
         'notify' : 'yes',
         'loop': 'yes',
         'autoshuffle': 'yes',
