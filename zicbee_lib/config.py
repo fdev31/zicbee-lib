@@ -79,7 +79,7 @@ class _ConfigObj(object):
     _cfg = ConfigParser.ConfigParser(defaults_dict)
 
     def _refresh(self):
-        t = time()
+        t = int(time()+0.5)
         if self._lastcheck + 1 < t:
             self._lastcheck = t
             st = os.stat(config_filename)
@@ -99,6 +99,9 @@ class _ConfigObj(object):
             self._cfg.write(file(config_filename, 'w'))
 
     def __setattr__(self, name, val):
+        if name in ('_lastcheck', '_mtime'):
+            return object.__setattr__(self, name, val)
+
         self._refresh()
         if name.endswith('_host'):
             ref = self[name]
