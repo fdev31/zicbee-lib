@@ -1,5 +1,6 @@
 import os
 import atexit
+from time import time
 import ConfigParser
 
 __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases', 'shortcuts']
@@ -77,14 +78,28 @@ class _ConfigObj(object):
 
     _cfg = ConfigParser.ConfigParser(defaults_dict)
 
+    def _refresh(self):
+        t = time()
+        if self._lastcheck + 1 < t:
+            self._lastcheck = t
+            st = os.stat(config_filename)
+            st = max(st.st_mtime, st.st_ctime)
+            if self._mtime < st:
+                self._mtime = st
+                self._cfg.read(config_filename)
+
     def __init__(self):
-        if os.path.exists(config_filename):
-            self._cfg.read(config_filename)
-        else:
+
+        self._mtime = 0 # last mtime of the file
+        self._lastcheck = 0 # os.stat flood protection
+
+        try:
+            self._refresh()
+        except OSError:
             self._cfg.write(file(config_filename, 'w'))
 
     def __setattr__(self, name, val):
-
+        self._refresh()
         if name.endswith('_host'):
             ref = self[name]
 
@@ -122,6 +137,7 @@ class _ConfigObj(object):
         return val
 
     def __getattr__(self, name):
+        self._refresh()
         v = self._cfg.get('DEFAULT', name)
         if name in ('db_host', 'player_host', 'custom_extensions', 'players', 'allow_remote_admin'):
             return [s.strip() for s in v.split(',')]
