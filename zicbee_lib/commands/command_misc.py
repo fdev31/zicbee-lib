@@ -109,15 +109,16 @@ def complete_alias(cur_var, params):
 
 def set_variables(output, name=None, value=None, *args):
     CST = ' ,='
-    if '=' in name:
-        nargs = (n.strip() for n in name.split('=') if n.strip())
-        name = nargs.next()
-        args = tuple(nargs) + args
+    if name:
+        if '=' in name:
+            nargs = (n.strip() for n in name.split('=') if n.strip())
+            name = nargs.next()
+            args = tuple(nargs) + args
+        name = name.strip(CST)
 
     if args:
         value = ("%s,%s"%(value.strip(CST), ','.join(a.strip(CST) for a in args))).strip(CST)
 
-    name = name.strip(CST)
 
     try:
         def _out(k, v):
