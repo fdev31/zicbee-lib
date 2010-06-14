@@ -17,7 +17,7 @@ setup (
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
         url = 'http://zicbee.gnux.info/',
-        download_url='http://zicbee.gnux.info/hg/index.cgi/zicbee-lib/archive/%s.tar.bz2'%VERSION,
+        download_url='http://zicbee.gnux.info/hg/zicbee-lib/archive/%s.tar.bz2'%VERSION,
         license='BSD',
         platform='all',
         description='Base client libraries for zicbee project',
