@@ -3,6 +3,7 @@ import readline
 from cmd import Cmd
 from functools import partial
 from zicbee_lib.commands import commands, execute
+from zicbee_lib.resources import set_proc_title
 from zicbee_lib.config import config, DB_DIR
 from zicbee_lib.debug import DEBUG
 
@@ -31,6 +32,7 @@ class Shell(Cmd):
         Cmd.__init__(self)
         print "Playing on http://%s songs from http://%s/db"%(config['player_host'][0], config['db_host'][0])
         self.names = ['do_%s'%c for c in commands.keys()] + ['do_help']
+        set_proc_title('wasp')
 
     def onecmd(self, line):
         try:
