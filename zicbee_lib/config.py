@@ -1,5 +1,4 @@
 import os
-import atexit
 from time import time
 import ConfigParser
 
@@ -67,6 +66,7 @@ defaults_dict = {
         'enable_history': 'yes',
         'custom_extensions': 'mpg,mp2',
         'players' : 'vlc,gst,mplayer',
+        'music_folder' : '',
         'notify' : 'yes',
         'loop': 'yes',
         'autoshuffle': 'yes',
@@ -152,9 +152,6 @@ class _ConfigObj(object):
     def __iter__(self):
         for k in defaults_dict:
             yield (k, self[k])
-
-# Ensure the file is written on drive
-#atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 
 # Config object, supports dots. and brackets[]
 config = _ConfigObj()
