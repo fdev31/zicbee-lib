@@ -7,7 +7,7 @@ __all__ = ['tokens2python', 'parse_string', 'string2python']
 
 import re
 from .formats import uncompact_int # decodes packed "id" keyword
-from zicbee.remote_apis import ASArtist
+from zicbee_lib.remote_apis import ASArtist
 
 
 class Node(object):
