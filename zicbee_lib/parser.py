@@ -266,12 +266,18 @@ def parse_string(st):
                 else:
                     prev_is_txt = isinstance(loc_prev, basestring)
                     cur_is_txt = isinstance(tok, basestring)
+                    if prev_is_txt and not cur_is_txt:
+                        values.append(cur_val)
+                        cur_val = None
+
 
                     if tok in OPERATORS:
                         operators.append( tok )
                     elif cur_is_txt:
                         if prev_is_txt:
                             loc_prev = "%s %s"%(loc_prev, tok)
+                        else:
+                            cur_val.append(tok)
                     else:
                         values.append( tok )
                 if count == 0:
