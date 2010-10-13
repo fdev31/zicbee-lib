@@ -94,6 +94,9 @@ class Tag(Node):
 
 class NumTag(Tag):
 
+    def is_sensitive(self):
+        return True
+
     def python(self):
         val = self.value
         name = self.name.strip(':')
@@ -111,6 +114,9 @@ class NumTag(Tag):
 
 
 class Index(Tag):
+
+    def is_sensitive(self):
+        return True
 
     def python(self):
         val = self.value
