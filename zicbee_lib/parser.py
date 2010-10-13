@@ -24,7 +24,7 @@ class Node(object):
         return self.__class__ == other.__class__ and self.name == getattr(other, 'name', None)
 
     def __eq__(self, other):
-        return self.name == (other, 'name', None) if other else False
+        return self.name == getattr(other, 'name', None) if other else False
 
 class Not(Node):
 
