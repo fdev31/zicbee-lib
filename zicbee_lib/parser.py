@@ -1,16 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-__all__ = ['tokens2python', 'parse_string', 'string2python']
-
-# TODO:
-# (maybe) Raw(filename)
+__all__ = ['tokens2python', 'parse_string', 'string2python', 'tokens2string']
 
 import re
-from .formats import uncompact_int # decodes packed "id" keyword
+from zicbee_lib.formats import compact_int, uncompact_int # decodes packed "id" keyword + generates varnames
 from zicbee_lib.remote_apis import ASArtist
 
 
 class Node(object):
+
+    _varcount = 0
+
+    @classmethod
+    def get_new_var(kls):
+        v = kls._varcount
+        kls._varcount = v+1
+        return "v"+compact_int(v)
+
+    @classmethod
+    def reset_varnames(kls):
+        kls._varcount = 0
 
     def __init__(self, name):
         self.name = name
@@ -61,10 +70,12 @@ class Tag(Node):
         if not self.is_sensitive():
             name += ".lower()"
         prefix, val = self.split_value()
+        varname = Node.get_new_var()
+        var = {varname: val}
         if prefix == "in":
-            return "%r in %s"%(val, name)
+            return ("%s in %s"%(varname, name), var)
         else:
-            return "%s == %r"%(name, val)
+            return ("%s == %s"%(name, varname), var)
 
     def split_value(self):
         v = self.value
@@ -101,15 +112,20 @@ class NumTag(Tag):
         val = self.value
         name = self.name.strip(':')
         if val[0] in '<>=':
+            varname = Node.get_new_var()
+            var = {varname: val}
             if val[0] == '=':
                 expr = "%s == %s"%(name, val[1:].strip())
             else:
                 if val[1] == '=':
-                    expr = "%s %s %s"%(name, val[:2], val[2:].strip())
+                    expr = ("%s %s %s"%(varname, val[:2], val[2:].strip()), var)
                 else:
-                    expr = "%s %s %s"%(name, val[:1], val[1:].strip())
+                    expr = ("%s %s %s"%(varname, val[:1], val[1:].strip()), var)
         else: # default
-            expr = "%s <= %s <= %s"%(int(val)-1, name, int(val)+1)
+            a_varname = Node.get_new_var()
+            b_varname = Node.get_new_var()
+            var = {a_varname: int(val)-1, b_varname: int(val)+1}
+            expr = ("%s <= %s <= %s"%(a_varname, name, b_varname), var)
         return expr
 
 
@@ -120,14 +136,14 @@ class Index(Tag):
 
     def python(self):
         val = self.value
-        name = self.name.strip(':')
-        return "%s == %s"%(name, val)
+        varname = Node.get_new_var()
+        return ("__id__ == %s"%(varname), {varname: uncompact_int(val)})
 
     @property
     def value(self):
         if len(self.substr) != 1:
             return 'N/A'
-        return uncompact_int((' '.join(self.substr)).strip())
+        return (' '.join(self.substr)).strip()
 
 
 class Special(Tag):
@@ -302,8 +318,21 @@ def parse_string(st):
 
 
 def tokens2python(tokens):
-    return ' '.join(tok.python() for tok in tokens)
+    ret = []
+    d = {}
+    for tok in tokens:
+        r = tok.python()
+        if isinstance(r, tuple):
+            d.update(r[1])
+            ret.append(r[0])
+        else:
+            ret.append(r)
 
+    return (' '.join(ret), d)
+#    return ' '.join(tok.python() for tok in tokens)
+
+def tokens2string(tokens):
+    return ' '.join(str(t) for t in tokens)
 
 def string2python(st):
     toks = parse_string(st)
