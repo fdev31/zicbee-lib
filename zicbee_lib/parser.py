@@ -298,11 +298,6 @@ def parse_string(st):
             res[start_idx-1:idx+1] = replaces
         prev = tok
 
-    if len(res) == 3 and res[0] == OPEN and res[2] == CLOSE and isinstance(res[1], basestring):
-        # TODO: special unique value, should default to something like artist: <val> or title: <val> or group: <val>
-        import pdb; pdb.set_trace()
-        print "special"
-        pass
     return res
 
 
