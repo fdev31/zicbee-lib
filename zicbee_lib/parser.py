@@ -125,7 +125,8 @@ class Index(Tag):
 
     @property
     def value(self):
-        assert len(self.substr) == 1
+        if len(self.substr) != 1:
+            return 'N/A'
         return uncompact_int((' '.join(self.substr)).strip())
 
 
