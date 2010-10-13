@@ -318,6 +318,7 @@ def parse_string(st):
 
 
 def tokens2python(tokens):
+    Node.reset_varnames()
     ret = []
     d = {}
     for tok in tokens:
