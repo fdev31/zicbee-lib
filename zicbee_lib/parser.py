@@ -113,14 +113,13 @@ class NumTag(Tag):
         name = self.name.strip(':')
         if val[0] in '<>=':
             varname = Node.get_new_var()
-            var = {varname: val}
             if val[0] == '=':
-                expr = "%s == %s"%(name, val[1:].strip())
+                expr = ("%s == %s"%(name, varname), {varname: int(val[1:].strip())})
             else:
                 if val[1] == '=':
-                    expr = ("%s %s %s"%(varname, val[:2], val[2:].strip()), var)
+                    expr = ("%s %s %s"%(name, val[:2], varname), {varname: int(val[2:].strip())})
                 else:
-                    expr = ("%s %s %s"%(varname, val[:1], val[1:].strip()), var)
+                    expr = ("%s %s %s"%(name, val[:1], varname),{varname: int(val[1:].strip())} )
         else: # default
             a_varname = Node.get_new_var()
             b_varname = Node.get_new_var()
