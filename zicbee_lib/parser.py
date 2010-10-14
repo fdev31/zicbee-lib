@@ -73,7 +73,7 @@ class Tag(Node):
         varname = Node.get_new_var()
         var = {varname: val}
         if prefix == "in":
-            return ("%s in %s"%(varname, name), var)
+            return ("%r in %s"%(val, name), {})
         else:
             return ("%s == %s"%(name, varname), var)
 
