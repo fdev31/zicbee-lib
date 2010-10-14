@@ -6,25 +6,27 @@ import re
 from zicbee_lib.formats import compact_int, uncompact_int # decodes packed "id" keyword + generates varnames
 from zicbee_lib.remote_apis import ASArtist
 
+class VarCounter(object):
 
-class Node(object):
-
-    _varcount = 0
-
-    @classmethod
-    def get_new_var(kls):
-        v = kls._varcount
-        kls._varcount = v+1
+    @property
+    def varname(self):
+        v = self.count
+        self.count = v+1
         return "v"+compact_int(v)
 
-    @classmethod
-    def reset_varnames(kls):
-        kls._varcount = 0
+    def __enter__(self, *a):
+        self.count = 0
+        return self
+
+    def __exit__(self, *a):
+        pass
+
+class Node(object):
 
     def __init__(self, name):
         self.name = name
 
-    def __repr__(self):
+    def __repr__(self, *unused):
         return "%s"%self.name
 
     python = __repr__
@@ -37,7 +39,7 @@ class Node(object):
 
 class Not(Node):
 
-    def python(self):
+    def python(self, cnt):
         return "not"
 
 
@@ -65,16 +67,16 @@ class Tag(Node):
     def is_sensitive(self):
         return self.name[0].isupper()
 
-    def python(self):
+    def python(self, cnt):
         name = self.name.strip(':').lower()
         if not self.is_sensitive():
             name += ".lower()"
         prefix, val = self.split_value()
-        varname = Node.get_new_var()
-        var = {varname: val}
         if prefix == "in":
             return ("%r in %s"%(val, name), {})
         else:
+            varname = cnt.varname
+            var = {varname: val}
             return ("%s == %s"%(name, varname), var)
 
     def split_value(self):
@@ -108,11 +110,11 @@ class NumTag(Tag):
     def is_sensitive(self):
         return True
 
-    def python(self):
+    def python(self, cnt):
         val = self.value
         name = self.name.strip(':')
         if val[0] in '<>=':
-            varname = Node.get_new_var()
+            varname = cnt.varname
             if val[0] == '=':
                 expr = ("%s == %s"%(name, varname), {varname: int(val[1:].strip())})
             else:
@@ -121,8 +123,8 @@ class NumTag(Tag):
                 else:
                     expr = ("%s %s %s"%(name, val[:1], varname),{varname: int(val[1:].strip())} )
         else: # default
-            a_varname = Node.get_new_var()
-            b_varname = Node.get_new_var()
+            a_varname = cnt.varname
+            b_varname = cnt.varname
             var = {a_varname: int(val)-1, b_varname: int(val)+1}
             expr = ("%s <= %s <= %s"%(a_varname, name, b_varname), var)
         return expr
@@ -133,9 +135,9 @@ class Index(Tag):
     def is_sensitive(self):
         return True
 
-    def python(self):
+    def python(self, cnt):
         val = self.value
-        varname = Node.get_new_var()
+        varname = cnt.varname
         return ("__id__ == %s"%(varname), {varname: uncompact_int(val)})
 
     @property
@@ -150,7 +152,7 @@ class Special(Tag):
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) if other else False
 
-    def python(self):
+    def python(self, cnt):
         return '' # Not applicable
 
 # Recognised infos is here:
@@ -317,19 +319,19 @@ def parse_string(st):
 
 
 def tokens2python(tokens):
-    Node.reset_varnames()
-    ret = []
-    d = {}
-    for tok in tokens:
-        r = tok.python()
-        if isinstance(r, tuple):
-            d.update(r[1])
-            ret.append(r[0])
-        else:
-            ret.append(r)
+    with VarCounter() as vc:
+        ret = []
+        d = {}
+        for tok in tokens:
+            r = tok.python(vc)
+            if isinstance(r, tuple):
+                d.update(r[1])
+                ret.append(r[0])
+            else:
+                ret.append(r)
 
     return (' '.join(ret), d)
-#    return ' '.join(tok.python() for tok in tokens)
+
 
 def tokens2string(tokens):
     return ' '.join(str(t) for t in tokens)
