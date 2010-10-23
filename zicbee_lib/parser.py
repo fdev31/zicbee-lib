@@ -314,7 +314,9 @@ def parse_string(st):
             replaces.append(CLOSE)
             res[start_idx-1:idx+1] = replaces
         prev = tok
-
+    if len(res) == 1 and type(res[0]) == Node:
+        val = res[0].name
+        res = [ ARTIST.from_name() + val , OR , ALBUM.from_name() + val , OR , TITLE.from_name() + val ]
     return res
 
 
