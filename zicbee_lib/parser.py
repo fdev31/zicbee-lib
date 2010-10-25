@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 __all__ = ['tokens2python', 'parse_string', 'string2python', 'tokens2string']
 
 import re
