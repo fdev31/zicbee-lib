@@ -152,6 +152,12 @@ class Special(Tag):
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) if other else False
 
+    def __repr__(self):
+        if self.value:
+            return "%s %s"%(self.name, self.value)
+        else:
+            return self.name[:-1]
+
     def python(self, cnt):
         return '' # Not applicable
 
