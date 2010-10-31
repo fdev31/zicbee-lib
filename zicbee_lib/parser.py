@@ -6,6 +6,7 @@ import re
 from zicbee_lib.formats import compact_int, uncompact_int # decodes packed "id" keyword + generates varnames
 from zicbee_lib.remote_apis import ASArtist
 
+
 class VarCounter(object):
 
     @property
@@ -20,6 +21,7 @@ class VarCounter(object):
 
     def __exit__(self, *a):
         pass
+
 
 class Node(object):
 
@@ -36,6 +38,7 @@ class Node(object):
 
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) if other else False
+
 
 class Not(Node):
 
@@ -121,7 +124,7 @@ class NumTag(Tag):
                 if val[1] == '=':
                     expr = ("%s %s %s"%(name, val[:2], varname), {varname: int(val[2:].strip())})
                 else:
-                    expr = ("%s %s %s"%(name, val[:1], varname),{varname: int(val[1:].strip())} )
+                    expr = ("%s %s %s"%(name, val[:1], varname), {varname: int(val[1:].strip())})
         else: # default
             a_varname = cnt.varname
             b_varname = cnt.varname
@@ -298,12 +301,12 @@ def parse_string(st):
                     cur_is_txt = isinstance(tok, basestring)
 
                     if tok in OPERATORS:
-                        operators.append( tok )
+                        operators.append(tok)
                     elif cur_is_txt:
                         if prev_is_txt:
                             loc_prev = "%s %s"%(loc_prev, tok)
                     else:
-                        values.append( tok )
+                        values.append(tok)
                 if count == 0:
                     break
                 loc_prev = tok
@@ -322,7 +325,7 @@ def parse_string(st):
         prev = tok
     if len(res) == 1 and type(res[0]) == Node:
         val = res[0].name
-        res = [ ARTIST.from_name() + val , OR , ALBUM.from_name() + val , OR , TITLE.from_name() + val ]
+        res = [ARTIST.from_name() + val, OR, ALBUM.from_name() + val, OR, TITLE.from_name() + val]
     return res
 
 
@@ -344,8 +347,10 @@ def tokens2python(tokens):
 def tokens2string(tokens):
     return ' '.join(str(t) for t in tokens)
 
+
 def string2python(st):
     toks = parse_string(st)
+    #import pdb; pdb.set_trace()
     if AUTO in toks:
         max_vals = int(toks[toks.index(AUTO)].value or 10)
         it = enumerate(list(toks))
