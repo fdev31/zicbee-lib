@@ -350,7 +350,6 @@ def tokens2string(tokens):
 
 def string2python(st):
     toks = parse_string(st)
-    #import pdb; pdb.set_trace()
     if AUTO in toks:
         max_vals = int(toks[toks.index(AUTO)].value or 10)
         it = enumerate(list(toks))
