@@ -347,7 +347,7 @@ def tokens2string(tokens):
 def string2python(st):
     toks = parse_string(st)
     if AUTO in toks:
-        max_vals = int(toks[toks.index(AUTO)].value) or 10
+        max_vals = int(toks[toks.index(AUTO)].value or 10)
         it = enumerate(list(toks))
         offset = 0
         while True:
@@ -363,11 +363,12 @@ def string2python(st):
                     v = v[1:]
                 else:
                     prefix = ''
-                artist_infos = ASArtist(v)
-                for artist in artist_infos.getSimilar()[:max_vals]:
-                    ext_list.extend( ( OR, ARTIST.from_name(tok.name)+(prefix+artist[1])) )
+                similar_artists = ASArtist(v).getSimilar()[:max_vals]
+                for artist in similar_artists:
+                    ext_list.extend((OR, ARTIST.from_name(tok.name)+(prefix+artist[1])))
                 ext_list.append(CLOSE)
-                toks[i:i+1] = ext_list
+                toks[i+offset:i+offset+1] = ext_list
+                offset += len(ext_list)-1
     return tokens2python(toks)
 
 
@@ -375,6 +376,17 @@ def _string2python(st):
     return tokens2python(parse_string(st))
 
 if __name__ == '__main__':
+    def to(st):
+        print "-"*80
+        print st
+        print string2python(st)[0]
+    to("artist: björk or artist:  foobar auto:")
+    to("artist: (björk or foobar) auto:")
+    to("auto: artist: (björk or foobar)")
+    to("auto: 20 artist: (toto or björk or foobar)")
+    
+    raise SystemExit()
+    
     tst_str = [
         'artist: Björk or artist: toto',
         'artist: metallica album: black',
@@ -401,4 +413,3 @@ if __name__ == '__main__':
         ps = parse_string(line)
         print ps
         print tokens2python(ps)
-
