@@ -11,9 +11,10 @@ from itertools import chain
 
 def get_infos():
     """ Returns informations about the current track.
-    Returns:
-        dict. with all keys/values set
-    """
+
+   :return: keys/values with all track infos
+   :rtype: dict
+   """
     d = {}
     for line in iter_webget('/infos'):
         line = line.strip()
@@ -39,6 +40,15 @@ def _safe_webget_iter(uri):
                 break
 
 def iter_webget(uri):
+    """
+    Yield results of some HTTP request
+
+    :type uri: str
+    :param uri: the URI corresponding to your request
+    :return: result, line by line
+    :rtype: iterator
+    """
+
     if not '://' in uri:
         if 'db' in uri.split('/', 4)[:-1]:
             hosts = config['db_host']
@@ -103,4 +113,5 @@ class _LostMemory(dict):
         dict.clear(self)
         self._tss.clear()
 
+#: persistant values, kept across cmdline calls 
 memory = _LostMemory()

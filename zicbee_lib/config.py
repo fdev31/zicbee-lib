@@ -1,3 +1,4 @@
+""" General configuration for zicbee & wasp """
 import os
 from time import time
 import ConfigParser
@@ -72,6 +73,7 @@ defaults_dict = {
         'autoshuffle': 'yes',
         }
 
+#: Filename for the config file
 config_filename = os.path.join(DB_DIR, 'config.ini')
 
 class _ConfigObj(object):
@@ -153,7 +155,7 @@ class _ConfigObj(object):
         for k in defaults_dict:
             yield (k, self[k])
 
-# Config object, supports dots. and brackets[]
+#: Config object, supports dots. and brackets[]
 config = _ConfigObj()
 
 # Dictionary-like of alias: expanded_value
@@ -182,10 +184,10 @@ class _DefaultDict(dict):
         except KeyError:
             return self._default
 
-# List of valid extensions
+#: List of valid extensions
 VALID_EXTENSIONS.extend(config.custom_extensions)
 
-# media-specific configuration
+#: media-specific configuration
 media_config = _DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
         {
             'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
