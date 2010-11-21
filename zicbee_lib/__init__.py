@@ -1,8 +1,7 @@
 """
-.. module:: zicbee-lib
-   :platform: All
-   :synopsis: Zicbee's base functions + client library
-
 .. moduleauthor:: Fabien Devaux
+
+:mod:`zicbee` base library |version|
+Includes a simple client library + CLI client
 """
 __version__= '0.7.2'
