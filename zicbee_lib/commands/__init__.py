@@ -1,12 +1,16 @@
-# commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
-# in request string, you can use two forms: positional or named
-# in positional form, you should have as many %s as required parameters, they will be passed in given order
-# in named form, you have dict expansion for: args (a string containing all arguments separated by a space), db_host, player_host
-# if given an handler_function, this is executed to get the request string
-#
-# In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
-# the request result is print on the console
+"""
+commands dict: <cmd name>:<request string OR handler_function>, <doc>, [extra dict]
+in request string, you can use two forms: positional or named
+in positional form, you should have as many %s as required parameters, they will be passed in given order
+in named form, you have dict expansion for: args (a string containing all arguments separated by a space), db_host, player_host
+if given an handler_function, this is executed to get the request string
 
+In both forms, you should return an uri, if it's a relative prefix, db_host or player_host is chose according to "/db/" pattern presence
+the request result is print on the console
+"""
+
+
+#: allow asynchronous operations
 ALLOW_ASYNC = True
 
 from itertools import chain
@@ -46,6 +50,7 @@ from .command_misc import set_variables, tidy_show, apply_grep_pattern, set_grep
 from .command_misc import random_command, show_random_result
 
 def complete_cd(cw, args):
+    """ completor function for "cd" command """
     a = ' '.join(args[1:])
     word = len(args)-2 # remove last (index starts to 0, and first item doesn't count)
     if not cw:
@@ -64,6 +69,7 @@ def complete_cd(cw, args):
             return [' '.join(riri[0][word:])]
 
 def remember_ls_results(r):
+    """ stores results into memory """
     ret = []
     for res in r:
         if not res.startswith('http://'):
@@ -73,6 +79,9 @@ def remember_ls_results(r):
     memory['last_ls'] = ret
 
 def ls_command(out, *arg):
+    """ ls command implementation
+    Allow someone to list artists, albums and songs
+    """
     path = memory.get('path', [])
     arg = ' '.join(arg)
 
@@ -89,10 +98,12 @@ def ls_command(out, *arg):
             return '/db/albums'
 
 def pwd_command(out):
+    """ shows the current working directory """
     path = memory.get('path', [])
     out(['/'+('/'.join(path))])
 
 def cd_command(out, *arg):
+    """ Changes the current directory """
     path = memory.get('path', [])
     arg = ' '.join(arg)
 
@@ -121,6 +132,7 @@ def cd_command(out, *arg):
 remember_results = partial(memory.__setitem__, 'last_search')
 forget_results = lambda uri: memory.__delitem__('last_search')
 
+#: this dict stores all the available commands
 commands = {
 #        'freeze': (dump_home, 'Dumps a minimalistic python environment'),
         'play': ('/search?host=%(db_host)s&pattern=%(args)s', 'Play a song', dict(threaded=True)),
@@ -176,9 +188,19 @@ possible_commands.append('help')
 possible_commands.extend(shortcuts.keys())
 
 def write_lines(lines):
+    """ write lines on stdout """
     sys.stdout.writelines(l+'\n' for l in lines)
 
 def execute(name=None, line=None, output=write_lines):
+    """ Executes any command
+
+    :param str name: the name of the command to execute
+    :param str line: the rest of the command arguments
+    :param callable output: the output function,
+        taking a `str` as the only parameter.
+
+    .. note:: `line` can be omitted, in that case, all informations must be passed to the `name` variable.
+    """
     # real alias support (not host alias, full command)
     if name in shortcuts:
         name = shortcuts[name]

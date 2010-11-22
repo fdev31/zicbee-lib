@@ -1,4 +1,5 @@
 def startup():
+    """ Startup function, used to start wasp"""
     import sys
     from .core import Shell
     from zicbee_lib import commands, __version__ as VERSION

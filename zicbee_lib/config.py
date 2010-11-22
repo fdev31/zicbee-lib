@@ -50,7 +50,7 @@ try:
 except ImportError: # sane environment ;)
     TMP_DIR=r"/tmp"
 
-# Dictionary with default configuration
+#: Dictionary with default configuration
 defaults_dict = {
         'streaming_file' : os.path.join(TMP_DIR, 'zsong'),
         'download_dir' : TMP_DIR,
@@ -77,6 +77,7 @@ defaults_dict = {
 config_filename = os.path.join(DB_DIR, 'config.ini')
 
 class _ConfigObj(object):
+    """ Configuration object """
 
     _cfg = ConfigParser.ConfigParser(defaults_dict)
 

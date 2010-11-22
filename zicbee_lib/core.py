@@ -113,5 +113,5 @@ class _LostMemory(dict):
         dict.clear(self)
         self._tss.clear()
 
-#: persistant values, kept across cmdline calls 
+#: persistant values, kept across cmdline calls
 memory = _LostMemory()

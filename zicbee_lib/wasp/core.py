@@ -9,11 +9,16 @@ from zicbee_lib.debug import DEBUG
 
 
 def complete_command(name, completer, cur_var, line, s, e):
+    """ Generic completion helper """
     ret = completer(cur_var, line.split())
     return [cur_var+h[e-s:] for h in ret if h.startswith(cur_var)]
 
 class Shell(Cmd):
+    """ Wasp shell :) """
+
+    #: default prompt
     prompt = "Wasp> "
+
     def __init__(self):
         self._history = os.path.join(DB_DIR, 'wasp_history.txt')
         self._last_line = None
@@ -35,6 +40,7 @@ class Shell(Cmd):
         set_proc_title('wasp')
 
     def onecmd(self, line):
+        """ Executes one line """
         try:
             cmd, arg, line = self.parseline(line)
             if not line:

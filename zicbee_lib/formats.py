@@ -12,10 +12,9 @@ def clean_path(path):
     """ Expands a path with variables & user alias
 
 
-    Args:
-        path (str): a path containing shell-like shortcuts
-    Returns:
-        str. A normalized path.
+    :param str path: a path containing shell-like shortcuts
+    :returns: A normalized path.
+    :rtype: str
     """
     return expanduser(abspath(expandvars(path)))
 
@@ -23,26 +22,26 @@ def safe_path(path):
     """ Avoids path separators in the path
 
 
-    Args:
-        path (str): the possible unsafe path
-    Returns:
-        str. A string without separator
+    :param str path: the possible unsafe path
+    :returns: A string without separator
+    :rtype: str
     """
     return path.replace(os.path.sep, ' ')
 
 # int (de)compacter [int <> small str convertors]
 # convert to base62...
+#: conversion base
 base = 62
+#: available characters
 chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 def compact_int(ival):
     """ Makes an int compact
 
 
-    Args:
-        ival (int): the integer value you want to shorten
-    Returns:
-        str. A string equivalent to the integer but with a more compact representation
+    :param int ival: the integer value you want to shorten
+    :returns: A string equivalent to the integer but with a more compact representation
+    :rtype: str
     """
     result = []
     rest = ival
@@ -61,10 +60,9 @@ def uncompact_int(str_val):
     """ Makes an int from a compact string
 
 
-    Args:
-        str_val (str): The string representing a compact integer value
-    Returns:
-        int. The integer value
+    :param str str_val: The string representing a compact integer value
+    :returns: The integer value
+    :rtype: int
     """
     # int(x, base) not used because it's limited to base 36
     unit = 1
@@ -79,12 +77,9 @@ def get_index_or_slice(val):
     """ Converts a string representing an index into an int or a slice
 
 
-    Args:
-        val (str): string like ``4`` or ``1:10``
-    Raises:
-        :exc:`ValueError`
-    Returns:
-        :keyword:`int` or :keyword:`slice` corresponding to the given string
+    :param str val: string like ``4`` or ``1:10``
+    :raises:  :exc:`ValueError`
+    :returns: :keyword:`int` or :keyword:`slice` corresponding to the given string
     """
     try:
         i = int(val)
@@ -133,7 +128,8 @@ log.info("using %s engine."%json_engine)
 def dump_data_as_text(d, format):
     """ Dumps simple types (dict, iterable, float, int, unicode)
     as: json or plain text (compromise between human readable and parsable form)
-    Returns an iterator returning text
+    :param str format: value in "html", "json" or "txt"
+    returns: an iterator returning text
     """
     if format == "json":
         if isinstance(d, GeneratorType):
@@ -171,10 +167,10 @@ def duration_tidy(orig):
     """ Pretty formats an integer duration
 
 
-    Args:
-        orig (int, float): the value you want to pretty-print
-    Returns:
-        str. A string representing the given duration
+    :param orig: the value you want to pretty-print
+    :type orig: int or float
+    :returns: A string representing the given duration
+    :rtype: :keyword:`str`
     """
     minutes, seconds = divmod(orig, 60)
     if minutes > 60:
@@ -203,10 +199,9 @@ def get_help_from_func(cmd):
     """
     Returns a pretty-string from a function.
 
-    Args:
-        cmd (method): a method
-    Returns:
-        a tuple (:keyword:`str` tidy doc, :keyword:`bool` is_remote) from a function
+    :arg callable cmd: the fonction/method you want to get documentation from
+    :Returns: (:keyword:`str` tidy doc, :keyword:`bool` is_remote) from a function
+    :rtype: :keyword:`tuple`
     """
     arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
     is_remote = any(h for h in arg_names if h.startswith('host') or h.endswith('host'))

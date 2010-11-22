@@ -6,10 +6,16 @@ class ASArtist(object):
     """ AudioScrobbler Artist object """
 
     def __init__(self, name):
+        """ :arg str name: the name of the artist """
         self.name = name.encode('utf8')
         self._base_url = 'http://ws.audioscrobbler.com/1.0/artist'
 
     def getSimilar(self):
+        """ Get similar artists list
+
+        :returns: the list of matching artists
+        :rtype: list(str, str, ...)
+        """
         ret = []
         infos = urllib.urlopen(self._base_url+'/%s/similar.txt'%urllib.quote(self.name))
         while True:
@@ -21,6 +27,11 @@ class ASArtist(object):
         return ret
 
     def getTop(self):
+        """ Get the artists top's tracks
+
+        :returns: the list of track names
+        :rtype: list(str, str, str)
+        """
         ret = []
         xmlpage = urllib.urlopen(self._base_url+'/%s/toptracks.xml'%urllib.quote(self.name)).read()
         xmlpage = ET.fromstring(xmlpage)

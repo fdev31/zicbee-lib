@@ -7,6 +7,12 @@ from itertools import chain
 from weakref import WeakKeyDictionary
 
 def DownloadGenerator(uri):
+    """ Gets some uri
+
+    :param uri: uri and output filename
+    :type uri: tuple(str, str)
+    :returns: an iterator that will download the uri to the filename
+    """
     uri, filename = uri
 
     if os.path.exists(filename):
@@ -48,8 +54,8 @@ class Downloader(object):
     just call :meth:`run` with a list of uris you want to fetch
     """
     def __init__(self, nb_dl=2):
-        """ Args:
-            nb_dl: number of downloads to do in parallel
+        """
+        :param int nb_dl: number of downloads to do in parallel
         """
         self._nb_dl = nb_dl
         self._last_display = time.time()
@@ -57,10 +63,8 @@ class Downloader(object):
     def run(self, uri_list):
         """ Takes a list of uri and returns when they are downloaded
 
-        Args:
-            uri_list (iterable): a list of strings
-        Returns:
-            None
+        :param iterable uri_list: a list of uris (str)
+        :returns: None
         """
         downloaders = [] # Generators to handle
         in_queue = [] # List of "TODO" uris

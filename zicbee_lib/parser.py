@@ -8,6 +8,7 @@ from zicbee_lib.remote_apis import ASArtist
 
 
 class VarCounter(object):
+    """ Variable counter, used to increment count and get variables name in an abstract way """
 
     @property
     def varname(self):
@@ -24,8 +25,10 @@ class VarCounter(object):
 
 
 class Node(object):
+    """ Any language keyword is a :class:`Node` """
 
     def __init__(self, name):
+        """ :arg str name: :class:`Node` name"""
         self.name = name
 
     def __repr__(self, *unused):
@@ -34,6 +37,10 @@ class Node(object):
     python = __repr__
 
     def isa(self, other):
+        """ Test if that node is of the same type as another
+
+        :arg other: the other node to test
+        """
         return self.__class__ == other.__class__ and self.name == getattr(other, 'name', None)
 
     def __eq__(self, other):
@@ -41,12 +48,16 @@ class Node(object):
 
 
 class Not(Node):
+    """ Negation node - like python's "not" """
 
     def python(self, cnt):
+        """ Returns python representation """
         return "not"
 
 
 class Tag(Node):
+    """ A generic tag node
+    """
 
     def __init__(self, name):
         Node.__init__(self, name)
@@ -65,12 +76,21 @@ class Tag(Node):
         return self
 
     def from_name(self, name=None):
+        """ Returns a new node of the same type from a node name
+
+        :arg str name: :class:`Node` name
+        """
         return self.__class__(name or self.name)
 
     def is_sensitive(self):
+        """ Is that node case-sensitive ?
+
+        :rtype: bool
+        """
         return self.name[0].isupper()
 
     def python(self, cnt):
+        """ Python reprensentation of the :class:`Node` """
         name = self.name.strip(':').lower()
         if not self.is_sensitive():
             name += ".lower()"
@@ -109,6 +129,7 @@ class Tag(Node):
 
 
 class NumTag(Tag):
+    """ Numeric node """
 
     def is_sensitive(self):
         return True
@@ -134,6 +155,7 @@ class NumTag(Tag):
 
 
 class Index(Tag):
+    """ "id" node """
 
     def is_sensitive(self):
         return True
@@ -151,6 +173,7 @@ class Index(Tag):
 
 
 class Special(Tag):
+    """ Special (no python meaning) node """
 
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) if other else False
@@ -166,39 +189,62 @@ class Special(Tag):
 
 # Recognised infos is here:
 
+#: Regex for tags
 TAG_RE = re.compile(r'([A-Za-z][a-z_-]*:)')
+#: Regex for operators
 OP_RE = re.compile(r'(\W|^|(?<!\\))(and|or|!)(\W|$)')
+#: Regex for groups
 GRP_RE = re.compile(r'(?<!\\)([()])')
 
+#: Regex for (
 OPEN = Node('(')
+#: Regex for )
 CLOSE = Node(')')
-
+#: "or" node
 OR = Node('or')
+#: "and" node
 AND = Node('and')
+#: "not" node
 NOT = Not('!')
 
+#: "id": node
 ID = Index('id:')
+#: "artist" node
 ARTIST = Tag('artist:')
+#: "album" node
 ALBUM = Tag('album:')
+#: "title" node
 TITLE = Tag('title:')
+#: "tags" node
 TAG = Tag('tags:')
 
+#: "Artist" node
 CS_ARTIST = Tag('Artist:')
+#: "Album" node
 CS_ALBUM = Tag('Album:')
+#: "Title" node
 CS_TITLE = Tag('Title:')
-
+#: "length" node
 LENGTH = NumTag('length:')
+#: "score" node
 SCORE = NumTag('score:')
 
+#: "pls" node
 PLAYLIST = Special('pls:')
+#: "auto" node
 AUTO = Special('auto:')
-
+#: operators node list
 OPERATORS = (AND, OR, NOT)
+#: tags nodes list
 TAGS = (ARTIST, ALBUM, TITLE, LENGTH, SCORE, PLAYLIST, AUTO, ID,
         CS_ARTIST, CS_ALBUM, CS_TITLE)
 
 
 def parse_string(st):
+    """ Parses a string
+
+    :arg str st: The string you want to parse
+    """
     # minor sanity check, allowing people to use !artist: syntax (instead of ! artist:)
     st = re.sub('!(\S)', r'! \1', st)
     # handle ()
@@ -330,6 +376,13 @@ def parse_string(st):
 
 
 def tokens2python(tokens):
+    """ Convert a list of tokens into python code
+
+    :arg tokens: the list of tokens you want to convert
+    :type tokens: (:keyword:`list` of :class:`Node`)
+    :returns: the python code + variables dictionnary
+    :rtype: :keyword:`tuple`(:keyword:`str`, :keyword:`dict`)
+    """
     with VarCounter() as vc:
         ret = []
         d = {}
@@ -345,10 +398,22 @@ def tokens2python(tokens):
 
 
 def tokens2string(tokens):
+    """ Convert a list of tokens to a simple string
+
+    :arg tokens: the list of tokens you want to convert
+    :type tokens: (:keyword:`list` of :class:`Node`)
+
+    :rtype: str
+    """
     return ' '.join(str(t) for t in tokens)
 
 
 def string2python(st):
+    """ Converts a string into python code
+
+    :arg str st: the string (pattern) you want to convert
+    :returns: the same as :func:`tokens2python`
+    """
     toks = parse_string(st)
     if AUTO in toks:
         max_vals = int(toks[toks.index(AUTO)].value or 10)
@@ -388,9 +453,9 @@ if __name__ == '__main__':
     to("artist: (björk or foobar) auto:")
     to("auto: artist: (björk or foobar)")
     to("auto: 20 artist: (toto or björk or foobar)")
-    
+
     raise SystemExit()
-    
+
     tst_str = [
         'artist: Björk or artist: toto',
         'artist: metallica album: black',

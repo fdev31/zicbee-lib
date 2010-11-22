@@ -7,6 +7,10 @@ def get_players():
     return iter_entry_points("zicbee.player")
 
 def set_proc_title(name):
+    """ Sets the process name on the OS
+
+    :arg str name: the name we would like
+    """
     try:
         import setproctitle
         setproctitle.setproctitle(name)

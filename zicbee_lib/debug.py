@@ -1,3 +1,4 @@
+""" Debug facilities """
 __all__ = ['DEBUG', 'debug_enabled', 'log', 'nop', 'set_trace']
 import os
 import logging
@@ -5,7 +6,9 @@ import traceback
 from logging import getLogger
 from zicbee_lib.config import config
 
+#: general logger
 log = getLogger('zicbee')
+
 def nop(*args):
     """ Don't do anything """
     return
@@ -48,12 +51,8 @@ def DEBUG(trace=True):
     """ Prints a traceback + exception,
     optionally breaks into a debugger.
 
-
-    Args:
-        trace (bool): if True, breaks into a debugger after showing infos.
-
-    Returns:
-        None.
+    :param bool trace: if True, breaks into a debugger after showing infos.
+    :returns: None
     """
     traceback.print_stack()
     traceback.print_exc()
