@@ -128,8 +128,9 @@ log.info("using %s engine."%json_engine)
 def dump_data_as_text(d, format):
     """ Dumps simple types (dict, iterable, float, int, unicode)
     as: json or plain text (compromise between human readable and parsable form)
+
     :param str format: value in "html", "json" or "txt"
-    returns: an iterator returning text
+    :returns: an iterator returning text
     """
     if format == "json":
         if isinstance(d, GeneratorType):
