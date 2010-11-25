@@ -192,7 +192,7 @@ class Special(Tag):
 #: Regex for tags
 TAG_RE = re.compile(r'([A-Za-z][a-z_-]*:)')
 #: Regex for operators
-OP_RE = re.compile(r'(\W|^|(?<!\\))(and|or|!)(\W|$)')
+OP_RE = re.compile(r'(?<!\w)(and|or|!)(?=\W)')
 #: Regex for groups
 GRP_RE = re.compile(r'(?<!\\)([()])')
 
@@ -449,12 +449,14 @@ if __name__ == '__main__':
         print "-"*80
         print st
         print string2python(st)[0]
+    to("artist: wax tailor")
+    to("artist: wax tailor and ! title: foo")
+    raise SystemExit()
     to("artist: björk or artist:  foobar auto:")
     to("artist: (björk or foobar) auto:")
     to("auto: artist: (björk or foobar)")
     to("auto: 20 artist: (toto or björk or foobar)")
 
-    raise SystemExit()
 
     tst_str = [
         'artist: Björk or artist: toto',
