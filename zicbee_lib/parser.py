@@ -233,8 +233,11 @@ SCORE = NumTag('score:')
 PLAYLIST = Special('pls:')
 #: "auto" node
 AUTO = Special('auto:')
+#: operators in form {name: :class:`Node`}
+OP_by_name = {'and': AND, 'or': OR, '!': NOT}
 #: operators node list
-OPERATORS = (AND, OR, NOT)
+OPERATORS = OP_by_name.values()
+
 #: tags nodes list
 TAGS = (ARTIST, ALBUM, TITLE, LENGTH, SCORE, PLAYLIST, AUTO, ID,
         CS_ARTIST, CS_ALBUM, CS_TITLE)
@@ -255,18 +258,21 @@ def parse_string(st):
                 st[i] = tag
                 break
     # handle or, and
-    #print "* groups:", st
+#    print "* groups:", st
     for i, sub in reversed(list(enumerate(st))):
         if isinstance(sub, basestring):
             subs = OP_RE.split(sub)
             if len(subs) > 1:
                 st[i:i+1] = subs
+
+    st = [temp for temp in st if temp] # clean things a little
+
+#    print "* pre-operators:", st
     for i, sub in enumerate(st):
-        for tag in OPERATORS:
-            if tag.name == sub:
-                st[i] = tag
-                break
-    #print "* operators:", st
+        tag = OP_by_name.get(sub)
+        if tag:
+            st[i] = tag
+#    print "* operators:", st
 
     # handle tags
     for i, sub in reversed(list(enumerate(st))):
