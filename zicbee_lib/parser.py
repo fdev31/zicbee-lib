@@ -72,7 +72,7 @@ class Tag(Node):
         assert isinstance(other, basestring)
         if not self.is_sensitive():
             other = other.lower()
-        self.substr.append(other)
+        self.substr.append(other.strip())
         return self
 
     def from_name(self, name=None):
@@ -303,10 +303,20 @@ def parse_string(st):
             else:
                 infos['tag'] = None
             res.append(token)
-    # strips eventual pure text objects
-    for i, r in enumerate(res):
+
+    skip_count = 0
+    for i, r in reversed(list(enumerate(res))):
+        if skip_count:
+            skip_count -= 1
+            continue
         if isinstance(r, basestring):
-            res[i] = Node(r.strip())
+            if i > 1 and res[i-1] in OPERATORS and isinstance(res[i-2], Tag):
+                res[i-2] += res[i-1].name
+                res[i-2] += r
+                res[i-1:i+1] = []
+                skip_count += 2
+            else:
+                res[i] = Node(r.strip())
     # Inserts missing operators
     i = enumerate(res)
     prev = None
@@ -325,6 +335,7 @@ def parse_string(st):
             i.next()
         prev_prev = prev
         prev = tok
+
     # converts tag:, ( ,str1 , op1, str2, op2, str3, )
     # to: ( ,tag-str1, op1, tag-str2, op2, tag-str3, )
     i = enumerate(res)
@@ -379,7 +390,6 @@ def parse_string(st):
         val = res[0].name
         res = [ARTIST.from_name() + val, OR, ALBUM.from_name() + val, OR, TITLE.from_name() + val]
     return res
-
 
 def tokens2python(tokens):
     """ Convert a list of tokens into python code
@@ -455,9 +465,12 @@ if __name__ == '__main__':
         print "-"*80
         print st
         print string2python(st)[0]
+    to("artist: (Bob marley and the wa or tricky)")
+    to("artist: bob marley and the waillers")
+    raise SystemExit()
+    to("artist: cool and the gang")
     to("artist: wax tailor")
     to("artist: wax tailor and ! title: foo")
-    raise SystemExit()
     to("artist: björk or artist:  foobar auto:")
     to("artist: (björk or foobar) auto:")
     to("auto: artist: (björk or foobar)")
