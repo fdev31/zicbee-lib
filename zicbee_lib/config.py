@@ -70,6 +70,7 @@ defaults_dict = {
         'music_folder' : '',
         'notify' : 'yes',
         'loop': 'yes',
+        'localhost': '',
         'autoshuffle': 'yes',
         }
 
