@@ -1,3 +1,5 @@
+""" Remote-services (connected) APIs """
+
 import sys
 import urllib
 import xml.etree.ElementTree as ET

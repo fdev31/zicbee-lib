@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" Parser module for tag: <value>-like patterns, you probably just want to use :func:`string2python` """
 from __future__ import absolute_import, with_statement
 __all__ = ['tokens2python', 'parse_string', 'string2python', 'tokens2string']
 

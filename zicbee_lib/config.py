@@ -5,13 +5,22 @@ import ConfigParser
 
 __all__ = ['DB_DIR', 'defaults_dict', 'config', 'aliases', 'shortcuts']
 
+#: database directory
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
+
+#: valid extensions
 VALID_EXTENSIONS = ['mp3', 'ogg', 'mp4', 'aac', 'vqf', 'wmv', 'wma', 'm4a', 'asf', 'oga', 'flac', 'mpc', 'spx']
 
 def get_list_from_str(s):
+    """ Converts a comma-separated string to a list
+    :arg str s: the string with possible commas
+    :returns: a list of string, without commas
+    :rtype: str
+    """
     return [c.strip() for c in s.split(',')]
 
 class _Aliases(dict):
+    """ Alias handling internal class """
     def __init__(self, name):
         dict.__init__(self)
         self._db_dir = os.path.join(DB_DIR, '%s.txt'%name)
@@ -48,6 +57,7 @@ try:
             shell.SHGetSpecialFolderLocation(0, (shellcon.CSIDL_DESKTOP, shellcon.CSIDL_COMMON_DESKTOPDIRECTORY)[0])
             )
 except ImportError: # sane environment ;)
+    #: default temporary folder
     TMP_DIR=r"/tmp"
 
 #: Dictionary with default configuration
@@ -160,8 +170,9 @@ class _ConfigObj(object):
 #: Config object, supports dots. and brackets[]
 config = _ConfigObj()
 
-# Dictionary-like of alias: expanded_value
+# Dictionary-like of host-alias: expanded_value
 aliases = _Aliases('aliases')
+# Dictionary-like of shortcut-command: full_command
 shortcuts = _Aliases('shortcuts')
 
 class _DefaultDict(dict):

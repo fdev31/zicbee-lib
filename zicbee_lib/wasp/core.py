@@ -1,3 +1,4 @@
+""" main function used in Wasp """
 import os
 import readline
 from cmd import Cmd
@@ -40,7 +41,9 @@ class Shell(Cmd):
         set_proc_title('wasp')
 
     def onecmd(self, line):
-        """ Executes one line """
+        """ Executes one line
+        :arg str line: the line to execute
+        """
         try:
             cmd, arg, line = self.parseline(line)
             if not line:
@@ -62,9 +65,11 @@ class Shell(Cmd):
             return ret
 
     def get_names(self):
+        """ Returns the list of commands """
         return self.names
 
     def do_EOF(self, line):
+        """ Handles EOF user-event """
         try:
             readline.set_history_length(int(config['history_size']))
         except:

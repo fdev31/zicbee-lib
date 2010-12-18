@@ -1,3 +1,5 @@
+""" Wasp module root, used to fire-up the wasp shell """
+
 def startup():
     """ Startup function, used to start wasp"""
     import sys

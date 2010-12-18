@@ -1,3 +1,5 @@
+""" pkg_resources-like functions, may use pkg_resources directly """
+
 __all__ = ['get_players', 'resource_filename', 'set_proc_title']
 
 from pkg_resources import iter_entry_points, resource_filename

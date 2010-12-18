@@ -1,3 +1,5 @@
+""" Download-worker related objects """
+
 import os
 import sys
 import time

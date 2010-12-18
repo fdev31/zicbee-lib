@@ -1,5 +1,5 @@
 """ Debug facilities """
-__all__ = ['DEBUG', 'debug_enabled', 'log', 'nop', 'set_trace']
+__all__ = ['DEBUG', 'debug_enabled', 'log', 'nop', 'set_trace', 'traced']
 import os
 import logging
 import traceback
@@ -37,7 +37,7 @@ if not debug_enabled and os.environ.get('DEBUG'):
     debug_enabled = os.environ['DEBUG'] != '0'
 
 def traced(fn):
-    """ Decorator that calls :ref:DEBUG in case of exception """
+    """ Decorator that calls :func:`DEBUG` in case of exception """
     def _get_decorator(decorated):
         def _decorator(*args, **kw):
             try:

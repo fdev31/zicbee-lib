@@ -1,4 +1,6 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'get_index_or_slice']
+""" It's all about formats, (de)serialisation, filename cleaning, duration display, help-retrieval, etc... """
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'get_index_or_slice',
+'compact_int', 'uncompact_int']
 
 import inspect
 import itertools

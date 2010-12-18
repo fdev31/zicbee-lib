@@ -1,3 +1,4 @@
+""" Zicbee-lib core module, includes some basic functions """
 __all__ = ['memory', 'iter_webget', 'get_infos']
 
 from time import time

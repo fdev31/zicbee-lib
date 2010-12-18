@@ -9,6 +9,7 @@ from zicbee_lib.formats import get_index_or_slice
 from urllib import quote
 
 def complete_set(cur_var, params):
+    """ "set" command completion """
     if len(params) <= 2 and cur_var:
         # complete variables
         ret = (k for k, a in config if k.startswith(cur_var))
@@ -27,20 +28,24 @@ def complete_set(cur_var, params):
     return ret
 
 def hook_next(output):
+    """ "next" command hook """
     if 'pls_position' in memory:
         del memory['pls_position']
     return '/next'
 
 def hook_prev(output):
+    """ "prev" command hook """
     if 'pls_position' in memory:
         del memory['pls_position']
     return '/prev'
 
 def set_grep_pattern(output, *pat):
+    """ remembers the "grep" pattern """
     memory['grep'] = ' '.join(pat)
     return '/playlist'
 
 def apply_grep_pattern(it):
+    """ apply the "grep" pattern to the given iterator """
     # TODO: optimize
     pat = memory['grep'].lower()
     grep_idx = []
@@ -52,6 +57,7 @@ def apply_grep_pattern(it):
     memory['grepped'] = grep_idx
 
 def inject_playlist(output, symbol):
+    """ Play (inject in current playlist) the last "search" result """
     uri = memory.get('last_search')
     if not uri:
         print "Do a search first !"
@@ -63,6 +69,7 @@ def inject_playlist(output, symbol):
     return v
 
 def set_shortcut(output, name=None, *args):
+    """ Sets some shortcut """
     if args:
         value = ' '.join(args)
     else:
@@ -84,6 +91,7 @@ def set_shortcut(output, name=None, *args):
         print "invalid option."
 
 def set_alias(output, name=None, value=None):
+    """ Sets some alias """
     try:
         if name is None:
             for varname, varval in aliases.iteritems():
@@ -100,6 +108,7 @@ def set_alias(output, name=None, value=None):
         print "invalid option."
 
 def complete_alias(cur_var, params):
+    """ Completes the "alias" command """
     if len(params) <= 2 and cur_var:
         # complete variables
         ret = (k for k in aliases.iterkeys() if k.startswith(cur_var))
@@ -108,6 +117,7 @@ def complete_alias(cur_var, params):
     return ret
 
 def set_variables(output, name=None, value=None, *args):
+    """ Set some variable """
     CST = ' ,='
     if name:
         if '=' in name:
@@ -136,13 +146,14 @@ def set_variables(output, name=None, value=None, *args):
         output(["invalid option."])
 
 def modify_delete(output, songid):
+    """ hook for the "delete" command """
     if songid == 'grep':
         return ('/delete?idx=%s'%(i-idx) for idx, i in enumerate(memory['grepped']))
     else:
         return '/delete?idx=%s'%songid
 
 def modify_move(output, songid, where=None):
-
+    """ Hook for the "move" command """
     if where is None:
         infos = get_infos()
         where = int(infos['pls_position'])+1
@@ -152,15 +163,20 @@ def modify_move(output, songid, where=None):
         return '/move?s=%s&d=%s'%(songid, where)
 
 def random_command(output, what='artist'):
+    """ executes the "random" command
+    Fills the playlist with a random artist (or album)
+    """
     dbh = config.db_host[0]
     arg = iter_webget('http://%s/db/random?what=%s'%(dbh, what)).next()
     return '/search?%s&host=%s'%(arg, dbh)
 
 def show_random_result(it):
+    """ displays the "random" command result """
     uri = modify_show(None)
     return ('-'.join(r.split('|')[1:4]) for r in iter_webget(uri))
 
 def modify_show(output, answers=10):
+    """ Hook for the "show" command """
     answers = get_index_or_slice(answers)
     if isinstance(answers, slice):
         memory['show_offset'] = answers.start
@@ -184,6 +200,7 @@ def modify_show(output, answers=10):
             return '/playlist?res=%s'%(answers)
 
 def tidy_show(it):
+    """ Improve the "show" output """
     offs = memory['show_offset']
     now = int(memory.get('pls_position', -1))
 

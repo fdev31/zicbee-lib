@@ -16,11 +16,13 @@ ALLOW_ASYNC = True
 from itertools import chain
 try:
     from itertools import izip_longest
-
     def unroll(i):
+        """ unrolls a list of iterators, following the longest chain
+        returns an interator """
         return chain(*izip_longest(*i))
 except ImportError:
     # python < 2.6
+
     def unroll(i):
         l = list(i)
         while True:
@@ -129,7 +131,10 @@ def cd_command(out, *arg):
 
     memory['path'] = path
 
+#: remembers the last search result
 remember_results = partial(memory.__setitem__, 'last_search')
+
+#: forget last search result
 forget_results = lambda uri: memory.__delitem__('last_search')
 
 #: this dict stores all the available commands
