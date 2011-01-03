@@ -55,6 +55,12 @@ class Not(Node):
         """ Returns python representation """
         return "not"
 
+    def __eq__(self, other):
+        if isinstance(other, basestring) and other.strip() == "not":
+            return True
+        else:
+            return Node.__eq__(self, other)
+
 
 class Tag(Node):
     """ A generic tag node
@@ -311,7 +317,8 @@ def parse_string(st):
             skip_count -= 1
             continue
         if isinstance(r, basestring):
-            if i > 1 and res[i-1] in OPERATORS and isinstance(res[i-2], Tag):
+            if i > 1 and res[i-1] in OPERATORS and isinstance(res[i-2], Tag) and not res[i] in OPERATORS:
+                print repr(res[i]), OPERATORS
                 res[i-2] += res[i-1].name
                 res[i-2] += r
                 res[i-1:i+1] = []
@@ -466,9 +473,11 @@ if __name__ == '__main__':
         print "-"*80
         print st
         print string2python(st)[0]
+    to("title: ready or not")
+    raise SystemExit()
+    to("artist: death in and not album: contino")
     to("artist: (Bob marley and the wa or tricky)")
     to("artist: bob marley and the waillers")
-    raise SystemExit()
     to("artist: cool and the gang")
     to("artist: wax tailor")
     to("artist: wax tailor and ! title: foo")
