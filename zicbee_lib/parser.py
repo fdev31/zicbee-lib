@@ -176,14 +176,21 @@ class Index(Tag):
 class Special(Tag):
     """ Special (no python meaning) node """
 
+    preserve_suffix = True
+
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) if other else False
 
     def __repr__(self):
-        if self.value:
-            return "%s %s"%(self.name, self.value)
+        if self.preserve_suffix:
+            name = self.name
         else:
-            return self.name[:-1]
+            name = self.name[:-1]
+
+        if self.value:
+            return "%s %s"%(name, self.value)
+        else:
+            return name
 
     def python(self, cnt):
         return '' # Not applicable
